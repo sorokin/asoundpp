@@ -6,12 +6,33 @@ namespace asound
 {
    namespace pcm
    {
+      struct info;
       struct hw_params;
       struct device;
 
       struct underrun : std::runtime_error
       {
          underrun(std::string const&);
+      };
+
+      struct info
+      {
+         info();
+         ~info();
+
+         info(info const&);
+         info& operator=(info const&);
+
+         snd_pcm_info_t* get() const;
+
+         unsigned         get_device() const;
+         unsigned         get_subdevice() const;
+         snd_pcm_stream_t get_stream() const;
+         int              get_card() const;
+         const char*      get_id() const;
+
+      private:
+         snd_pcm_info_t* p;
       };
 
       struct hw_params
@@ -43,6 +64,8 @@ namespace asound
 
          snd_pcm_t* get() const;
 
+         info get_info() const;
+
          void prepare();
          void set_hw_params(hw_params const& p);
          void set_params(snd_pcm_format_t format,
@@ -66,6 +89,63 @@ namespace asound
 asound::pcm::underrun::underrun(std::string const& msg)
    : runtime_error(msg)
 {
+}
+
+asound::pcm::info::info()
+{
+   int r = snd_pcm_info_malloc(&p);
+   if (r != 0)
+      throw std::runtime_error("unable to allocate pcm info");
+}
+
+asound::pcm::info::~info()
+{
+   snd_pcm_info_free(p);
+}
+
+asound::pcm::info::info(info const& other)
+{
+   int r = snd_pcm_info_malloc(&p);
+   if (r != 0)
+      throw std::runtime_error("unable to allocate pcm info");
+
+   snd_pcm_info_copy(p, other.p);
+}
+
+asound::pcm::info::info& asound::pcm::info::operator=(info const& rhs)
+{
+   snd_pcm_info_copy(p, rhs.p);
+   return *this;
+}
+
+snd_pcm_info_t* asound::pcm::info::get() const
+{
+   return p;
+}
+
+unsigned asound::pcm::info::get_device() const
+{
+   return snd_pcm_info_get_device(p);
+}
+
+unsigned asound::pcm::info::get_subdevice() const
+{
+   return snd_pcm_info_get_subdevice(p);
+}
+
+snd_pcm_stream_t asound::pcm::info::get_stream() const
+{
+   return snd_pcm_info_get_stream(p);
+}
+
+int asound::pcm::info::get_card() const
+{
+   return snd_pcm_info_get_card(p);
+}
+
+const char* asound::pcm::info::get_id() const
+{
+   return snd_pcm_info_get_id(p);
 }
 
 asound::pcm::hw_params::hw_params()
@@ -189,6 +269,13 @@ asound::pcm::device::~device()
 snd_pcm_t* asound::pcm::device::get() const
 {
    return d;
+}
+
+asound::pcm::info asound::pcm::device::get_info() const
+{
+   asound::pcm::info ret;
+   snd_pcm_info(d, ret.get());
+   return ret;
 }
 
 void asound::pcm::device::prepare()
