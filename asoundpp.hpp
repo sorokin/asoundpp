@@ -84,6 +84,16 @@ namespace asound
          snd_pcm_t* d;
       };
    }
+
+   struct global_config_cleanup
+   {
+      global_config_cleanup();
+      ~global_config_cleanup();
+
+   private:
+      global_config_cleanup(global_config_cleanup const&);
+      global_config_cleanup& operator=(global_config_cleanup const&);
+   };
 }
 
 asound::pcm::underrun::underrun(std::string const& msg)
@@ -336,4 +346,13 @@ void asound::pcm::device::writei(void const* data, snd_pcm_uframes_t size)
       data = (char const*)data + ur;
       size -= ur;
    }
+}
+
+asound::global_config_cleanup::global_config_cleanup()
+{
+}
+
+asound::global_config_cleanup::~global_config_cleanup()
+{
+   snd_config_update_free_global();
 }

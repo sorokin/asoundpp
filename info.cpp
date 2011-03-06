@@ -4,6 +4,7 @@
 
 int main()
 {
+   asound::global_config_cleanup cleanup;
    asound::pcm::device d("default", SND_PCM_STREAM_PLAYBACK);
    asound::pcm::info i = d.get_info();
 

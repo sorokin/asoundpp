@@ -17,6 +17,7 @@ struct frame
 
 int main()
 {
+   asound::global_config_cleanup cfg_cleanup;
    asound::pcm::device d("default", SND_PCM_STREAM_PLAYBACK);
 
    unsigned rate = 44100;
@@ -48,8 +49,6 @@ int main()
          d.prepare();
       }
    }
-
-   snd_config_update_free_global();
 
    return 0;
 }
