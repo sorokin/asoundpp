@@ -1,6 +1,11 @@
+#ifndef ASOUNDPP_ASOUNDPP_HPP
+#define ASOUNDPP_ASOUNDPP_HPP
+
 #include <alsa/asoundlib.h>
 #include <stdexcept>
 #include <sstream>
+
+#include "frame.hpp"
 
 namespace asound
 {
@@ -356,3 +361,5 @@ asound::global_config_cleanup::~global_config_cleanup()
 {
    snd_config_update_free_global();
 }
+
+#endif
