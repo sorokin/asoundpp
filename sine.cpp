@@ -4,10 +4,27 @@
 #include <vector>
 #include <iostream>
 
-short generate_harmonic_sample(short amplitude, double frequency, unsigned sample_rate, unsigned sample_num)
+struct sine_wave_generator
 {
-   return amplitude * sin(frequency * (double)sample_num / (double)sample_rate * 2 * M_PI);
-}
+   sine_wave_generator(short amplitude, double frequency, unsigned sample_rate)
+      : amplitude(amplitude)
+      , frequency(frequency)
+      , sample_rate(sample_rate)
+      , sample_num(0)
+   {
+   }
+
+   short operator()()
+   {
+      return amplitude * sin(frequency * (double)sample_num++ / (double)sample_rate * 2 * M_PI);
+   }
+
+private:
+   short amplitude;
+   double frequency;
+   unsigned sample_rate;
+   unsigned sample_num;
+};
 
 int main()
 {
@@ -30,15 +47,14 @@ int main()
 
       std::vector<my_frame_type> data(frames);
 
-      unsigned current_frame = 0;
+      sine_wave_generator ch0_generator(30000, 220., rate);
+      sine_wave_generator ch1_generator(30000, 440., rate);
+
       for (unsigned l1 = 0; l1 < 30; l1++)
       {
          for (size_t l2 = 0; l2 < frames; l2++)
-         {
-            data[l2].ch[0] = generate_harmonic_sample(30000, 220., rate, current_frame);
-            data[l2].ch[1] = generate_harmonic_sample(30000, 440., rate, current_frame);
-            ++current_frame;
-         }
+            data[l2] = my_frame_type(my_frame_type::value_type(ch0_generator()),
+                                     my_frame_type::value_type(ch1_generator()));
 
          try
          {

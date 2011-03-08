@@ -46,6 +46,8 @@ struct sample_description_t<boost::integer::ubig16_t>
 template <typename T, unsigned Channels>
 struct basic_frame_t
 {
+   typedef T value_type;
+
    static const snd_pcm_format_t format   = sample_description_t<T>::format;
    static const unsigned         channels = Channels;
 
@@ -59,6 +61,8 @@ struct basic_frame_t
 template <typename T>
 struct basic_frame_t<T, 1>
 {
+   typedef T value_type;
+
    static const snd_pcm_format_t format   = sample_description_t<T>::format;
    static const unsigned         channels = 1;
 
@@ -77,6 +81,8 @@ struct basic_frame_t<T, 1>
 template <typename T>
 struct basic_frame_t<T, 2>
 {
+   typedef T value_type;
+
    static const snd_pcm_format_t format   = sample_description_t<T>::format;
    static const unsigned         channels = 2;
 
