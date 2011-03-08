@@ -20,8 +20,8 @@ int main()
    asound::global_config_cleanup cfg_cleanup;
    asound::pcm::device d("default", SND_PCM_STREAM_PLAYBACK);
 
-   unsigned rate = 44100;
-   size_t frames = 8192;
+   unsigned const rate   = 44100;
+   size_t   const frames = 8192;
 
    d.set_params(SND_PCM_FORMAT_S16_LE,
                 SND_PCM_ACCESS_RW_INTERLEAVED,
@@ -53,4 +53,3 @@ int main()
 
    return 0;
 }
-   
