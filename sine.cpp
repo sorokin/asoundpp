@@ -35,8 +35,9 @@ int main()
    unsigned current_sample = 0;
    for (unsigned l1 = 0; l1 < 30; l1++) {
       for (size_t l2 = 0; l2 < frames; l2++) {
-         data[l2].ch0 = generate_harmonic_sample(30000, 220., rate, current_sample++);
-         data[l2].ch1 = generate_harmonic_sample(30000, 440., rate, current_sample++);
+         data[l2].ch0 = generate_harmonic_sample(30000, 220., rate, current_sample);
+         data[l2].ch1 = generate_harmonic_sample(30000, 440., rate, current_sample);
+         ++current_sample;
       }
 
       try
