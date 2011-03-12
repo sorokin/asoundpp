@@ -4,6 +4,7 @@
 #include <alsa/asoundlib.h>
 #include <stdexcept>
 #include <sstream>
+#include <vector>
 
 #include "frame.hpp"
 
@@ -80,6 +81,12 @@ namespace asound
                          bool             soft_resample,
                          unsigned         latency);
          void writei(void const*, snd_pcm_uframes_t);
+
+         std::vector<pollfd> poll_descriptors();
+         unsigned short revents(pollfd*, size_t);
+         unsigned short revents(std::vector<pollfd>&);
+
+         snd_pcm_state_t state() const;
 
       private:
          device(device const&);
@@ -351,6 +358,43 @@ void asound::pcm::device::writei(void const* data, snd_pcm_uframes_t size)
       data = (char const*)data + ur;
       size -= ur;
    }
+}
+
+std::vector<pollfd> asound::pcm::device::poll_descriptors()
+{
+   std::vector<pollfd> r;
+
+   int count = snd_pcm_poll_descriptors_count(d);
+	if (count <= 0)
+		throw std::runtime_error("negative or zero poll descriptors count!");
+
+   r.resize((size_t)count);
+
+   int err = snd_pcm_poll_descriptors(d, &r[0], (unsigned int)count);
+	if (err < 0)
+		throw std::runtime_error("can't get poll descriptors for pcm");
+
+   return r;
+}
+
+unsigned short asound::pcm::device::revents(pollfd* fds, size_t size)
+{
+   unsigned short revent;
+   int err = snd_pcm_poll_descriptors_revents(d, fds, size, &revent);
+   if (err < 0)
+      throw std::runtime_error("can't get revents");
+   return revent;
+}
+
+unsigned short asound::pcm::device::revents(std::vector<pollfd>& fds)
+{
+   assert(fds.size() != 0);
+   return revents(&fds[0], fds.size());
+}
+
+snd_pcm_state_t asound::pcm::device::state() const
+{
+   return snd_pcm_state(d);
 }
 
 asound::global_config_cleanup::global_config_cleanup()
