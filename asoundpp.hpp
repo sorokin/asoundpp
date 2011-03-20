@@ -65,7 +65,7 @@ namespace asound
       
       struct device
       {
-         device(char const* name, snd_pcm_stream_t stream);
+         device(char const* name, snd_pcm_stream_t stream, int mode = 0);
          ~device();
 
          snd_pcm_t* get() const;
@@ -272,9 +272,9 @@ void asound::pcm::hw_params::set_buffer_size(device const& d, snd_pcm_uframes_t 
    }
 }
 
-asound::pcm::device::device(char const* name, snd_pcm_stream_t stream)
+asound::pcm::device::device(char const* name, snd_pcm_stream_t stream, int mode)
 {
-   int r = snd_pcm_open(&d, name, stream, 0);
+   int r = snd_pcm_open(&d, name, stream, mode);
    if (r != 0)
    {
       std::stringstream ss;
