@@ -39,14 +39,14 @@ void write_and_poll_loop(asound::pcm::device& d)
    std::vector<pollfd> ufds = d.poll_descriptors();
 
    sine_wave_generator wave_gen(30000, 440., RATE);
-   size_t const wanted_buffer_size = 1000;
+   size_t const desired_buffer_size = 1000;
    std::vector<short> buffer;
 
    for (;;)
    {
       wait_for_out(d, ufds);
 
-      fill_buffer(buffer, wave_gen, wanted_buffer_size);
+      fill_buffer(buffer, wave_gen, desired_buffer_size);
       int err = snd_pcm_writei(d.get(), &buffer[0], buffer.size());
       if (err == -EPIPE)
       {
