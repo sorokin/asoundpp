@@ -69,6 +69,7 @@ int main(int , char *[])
 {
    try
    {
+      asound::global_config_cleanup cfg_cleanup;
       asio::io_service io_service;
 
       asound::pcm::device d("default", SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
