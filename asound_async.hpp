@@ -12,6 +12,8 @@
 
 #include "asoundpp.hpp"
 
+#include "operation_cancelation.h"
+
 namespace asound
 {
    namespace pcm
@@ -46,6 +48,7 @@ namespace asound
          asound::pcm::device& d;
 
          asio::posix::stream_descriptor sd;
+         operation_cancelation oc;
 
          static const int SUPPORTED_EVENT_TYPE = POLLNVAL | POLLERR | POLLIN;
       };
@@ -65,6 +68,11 @@ namespace asound
             , on_error(on_error)
          {
             start_wait();
+         }
+
+         size_t avail_update() const
+         {
+            return impl->d.avail_update();
          }
 
          size_t write(void const* data, size_t size)
@@ -94,15 +102,13 @@ namespace asound
       private:
          void start_wait()
          {
-            impl->sd.async_read_some(asio::null_buffers(), boost::bind(&async_device::after_wait, this, _1, _2));
+            impl->sd.async_read_some(asio::null_buffers(),
+                                     impl->oc.wrap(boost::bind(&async_device::after_wait, this, _1, _2)));
          }
 
          void after_wait(const asio::error_code& error,
                          std::size_t /*bytes_transferred*/)
          {
-            if (error == asio::error::operation_aborted)
-               return;
-
             if (!error)
             {
                pollfd ufds;

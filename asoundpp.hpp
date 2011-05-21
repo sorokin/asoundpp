@@ -73,6 +73,7 @@ namespace asound
          info get_info() const;
 
          void prepare();
+         void drain();
          void set_hw_params(hw_params const& p);
          void set_params(snd_pcm_format_t format,
                          snd_pcm_access_t access,
@@ -87,6 +88,8 @@ namespace asound
          unsigned short revents(std::vector<pollfd>&);
 
          snd_pcm_state_t state() const;
+
+         size_t avail_update() const;
 
       private:
          device(device const&);
@@ -307,6 +310,13 @@ void asound::pcm::device::prepare()
       throw std::runtime_error("unable to prepare pcm device");
 }
 
+void asound::pcm::device::drain()
+{
+   int r = snd_pcm_drain(d);
+   if (r != 0)
+      throw std::runtime_error("unable to drain device");
+}
+
 void asound::pcm::device::set_hw_params(hw_params const& p)
 {
    int r = snd_pcm_hw_params(d, p.get());
@@ -395,6 +405,14 @@ unsigned short asound::pcm::device::revents(std::vector<pollfd>& fds)
 snd_pcm_state_t asound::pcm::device::state() const
 {
    return snd_pcm_state(d);
+}
+
+size_t asound::pcm::device::avail_update() const
+{
+   snd_pcm_sframes_t r = snd_pcm_avail_update(d);
+   if (r < 0)
+      throw std::runtime_error("avail_update failed");
+   return static_cast<size_t>(r);
 }
 
 asound::global_config_cleanup::global_config_cleanup()
