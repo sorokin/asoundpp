@@ -3,12 +3,11 @@
 
 #include <vector>
 
+#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/optional.hpp>
 #include <boost/utility/in_place_factory.hpp>
-
-#include "asio.hpp"
 
 #include "asoundpp.hpp"
 
@@ -22,13 +21,13 @@ namespace asound
       {
          int r = ::dup(fd);
          if (r == -1)
-            throw asio::system_error(asio::error_code(errno, asio::system_category()));
+            throw boost::system::system_error(boost::system::error_code(errno, boost::system::system_category()));
          return r;
       }
 
       struct async_device_impl
       {
-         async_device_impl(asio::io_service& io_service,
+         async_device_impl(boost::asio::io_service& io_service,
                            asound::pcm::device& d)
             : io_service(io_service)
             , d(d)
@@ -44,10 +43,10 @@ namespace asound
             sd.assign(dup_syscall(ufds[0].fd));
          }
 
-         asio::io_service& io_service;
+         boost::asio::io_service& io_service;
          asound::pcm::device& d;
 
-         asio::posix::stream_descriptor sd;
+         boost::asio::posix::stream_descriptor sd;
          operation_cancelation oc;
 
          static const int SUPPORTED_EVENT_TYPE = POLLNVAL | POLLERR | POLLIN;
@@ -58,7 +57,7 @@ namespace asound
          typedef boost::function<void ()> on_write_t;
          typedef boost::function<void ()> on_error_t;
 
-         async_device(asio::io_service& io_service,
+         async_device(boost::asio::io_service& io_service,
                       asound::pcm::device& d,
                       on_write_t on_write,
                       on_error_t on_error)
@@ -102,11 +101,11 @@ namespace asound
       private:
          void start_wait()
          {
-            impl->sd.async_read_some(asio::null_buffers(),
+            impl->sd.async_read_some(boost::asio::null_buffers(),
                                      impl->oc.wrap(boost::bind(&async_device::after_wait, this, _1, _2)));
          }
 
-         void after_wait(const asio::error_code& error,
+         void after_wait(const boost::system::error_code& error,
                          std::size_t /*bytes_transferred*/)
          {
             if (!error)
@@ -140,7 +139,7 @@ namespace asound
 
       private:
          boost::optional<async_device_impl> impl;
-         asio::io_service::work w;
+         boost::asio::io_service::work w;
          on_write_t on_write;
          on_error_t on_error;
       };

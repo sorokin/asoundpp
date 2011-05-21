@@ -1,15 +1,15 @@
 #ifndef OPERATION_CANCELATION_H
 #define OPERATION_CANCELATION_H
 
+#include <boost/asio.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
-#include "asio.hpp"
 #include <map>
 
 struct operation_cancelation
 {
-   typedef boost::function<void (const asio::error_code&, std::size_t)> function_t;
+   typedef boost::function<void (const boost::system::error_code&, std::size_t)> function_t;
 
    struct shared_object
    {
@@ -25,19 +25,12 @@ struct operation_cancelation
          f = function_t();
       }
 
-      void operator()(const asio::error_code& ec, std::size_t sz) const
+      void operator()(const boost::system::error_code& ec, std::size_t sz) const
       {
          if (f)
          {
             f(ec, sz);
             on_called();
-         }
-         else
-         {
-            if (ec != asio::error::operation_aborted)
-            {
-               for (;;);
-            }
          }
       }
 

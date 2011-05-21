@@ -1,4 +1,4 @@
-#define ASIO_ENABLE_HANDLER_TRACKING
+#define BOOST_ASIO_ENABLE_HANDLER_TRACKING
 #include "asound_async.hpp"
 
 #include "wave.h"
@@ -11,7 +11,7 @@
 
 struct pcm_test
 {
-   pcm_test(asio::io_service& io_service,
+   pcm_test(boost::asio::io_service& io_service,
             asound::pcm::device& d,
             wave_file_mapping const& mapping)
       : ss(io_service, SIGINT, SIGTERM, SIGQUIT)
@@ -61,7 +61,7 @@ private:
    }
 
 private:
-   asio::signal_set ss;
+   boost::asio::signal_set ss;
    boost::optional<asound::pcm::async_device> ad;
    wave_file_mapping const& mapping;
    size_t current_sample;
@@ -81,7 +81,7 @@ int main(int , char *[])
          throw std::runtime_error("invalid data size");
 
       asound::global_config_cleanup cfg_cleanup;
-      asio::io_service io_service;
+      boost::asio::io_service io_service;
 
       asound::pcm::device d("default", SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
 
