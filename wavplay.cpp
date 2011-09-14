@@ -1,4 +1,4 @@
-#define BOOST_ASIO_ENABLE_HANDLER_TRACKING
+//#define BOOST_ASIO_ENABLE_HANDLER_TRACKING
 #include "asound_async.hpp"
 
 #include "wave.h"
@@ -18,11 +18,12 @@ struct pcm_test
       , ad(boost::in_place(boost::ref(io_service),
                            boost::ref(d),
                            boost::bind(&pcm_test::do_write, this),
-                           boost::bind(&pcm_test::do_error, this)))
+                           boost::bind(&pcm_test::close_device, this)))
       , mapping(mapping)
       , current_sample(0)
    {
-      ss.async_wait(boost::bind(&pcm_test::on_quit_signal, this));
+      ss.async_wait(boost::bind(&pcm_test::close_device, this));
+      current_sample = mapping.size() / (2 * mapping.format().channels) - 200000;
    }
 
 private:
@@ -46,17 +47,11 @@ private:
       size_t written = ad->write(data_offset, number_of_samples_to_write);
       current_sample += written;
 
-      std::cout << number_of_samples_to_write << " " << written << std::endl;
+      //std::cout << number_of_samples_to_write << " " << written << std::endl;
    }
 
-   void do_error()
+   void close_device()
    {
-      ad = boost::none;
-   }
-
-   void on_quit_signal()
-   {
-      std::cout << "Have a nice day!" << std::endl;
       ad = boost::none;
    }
 
@@ -72,6 +67,10 @@ int main(int , char *[])
    try
    {
       wave_file_mapping mapping("/home/ivan/d/alsa/asoundpp/1.wav");
+
+      std::cout << "bits per sample: " << mapping.format().bits_per_sample << std::endl;
+      std::cout << "channels:        " << mapping.format().channels        << std::endl;
+      std::cout << "sample rate:     " << mapping.format().sample_rate     << std::endl;
 
       if (mapping.format().format != 1)
          throw std::runtime_error("unknown wave format");
@@ -95,6 +94,7 @@ int main(int , char *[])
       pcm_test pcm_test(io_service, d, mapping);
 
       io_service.run();
+      std::cout << "Have a nice day!" << std::endl;
    }
    catch (std::exception const& e)
    {

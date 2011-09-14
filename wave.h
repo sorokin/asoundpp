@@ -80,11 +80,9 @@ struct wave_file_mapping
    {
       riff_header const& riff = read_chunk<riff_header>(mapping, 0);
       verify_riff_header(riff, mapping.size());
-      std::cout << mapping.size() << std::endl;
 
       fmt_chunk const& fmt = read_chunk<fmt_chunk>(mapping, sizeof(riff_header));
       verify_fmt_chunk(fmt);
-      std::cout << fmt.sample_rate << std::endl;
 
       size_t data_hdr_offset = sizeof(riff_header) + sizeof(fmt_chunk);
       chunk_header const& data_hdr = read_chunk<chunk_header>(mapping, data_hdr_offset);
