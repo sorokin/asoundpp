@@ -76,15 +76,21 @@ void verify_fmt_chunk(fmt_chunk const& fmt)
 
    if ((fmt.bits_per_sample % 8) != 0)
       throw std::runtime_error("bits_per_sample is not in multiples of 8");
+
+   if (fmt.format != 1)
+      throw std::runtime_error("unknown wave format");
 }
 
-void verify_data_chunk_header(chunk_header const& data_hdr, size_t offset, size_t actual_file_size)
+void verify_data_chunk_header(chunk_header const& data_hdr, fmt_chunk const& fmt, size_t offset, size_t actual_file_size)
 {
    if (data_hdr.signature != 0x61746164)
       throw std::runtime_error("invalid data header signature");
 
    if (actual_file_size != offset + sizeof(chunk_header) + data_hdr.size)
       throw std::runtime_error("mismatched size of file and size in data header");
+
+   if ((data_hdr.size % fmt.frame_size()) != 0)
+      throw std::runtime_error("data chunk size is not in multiples of frame size");
 }
 
 struct wave_file_mapping
@@ -100,7 +106,7 @@ struct wave_file_mapping
 
       size_t data_hdr_offset = sizeof(riff_header) + sizeof(fmt_chunk);
       chunk_header const& data_hdr = read_chunk<chunk_header>(mapping, data_hdr_offset);
-      verify_data_chunk_header(data_hdr, data_hdr_offset, mapping.size());
+      verify_data_chunk_header(data_hdr, fmt, data_hdr_offset, mapping.size());
    }
 
    void const* data() const
@@ -112,6 +118,11 @@ struct wave_file_mapping
    {
       size_t data_hdr_offset = sizeof(riff_header) + sizeof(fmt_chunk);
       return read_chunk<chunk_header>(mapping, data_hdr_offset).size;
+   }
+
+   size_t number_of_frames() const
+   {
+      return size() / format().frame_size();
    }
 
    fmt_chunk const& format() const

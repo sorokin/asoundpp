@@ -33,9 +33,8 @@ private:
    {
       assert(ad);
 
-      size_t frame_size = mapping.format().sample_size() * mapping.format().channels;
-      size_t number_of_frames = mapping.size() / frame_size;
-      void const* data_offset = static_cast<char const*>(mapping.data()) + current_sample * frame_size;
+      size_t frame_size = mapping.format().frame_size();
+      size_t number_of_frames = mapping.number_of_frames();
 
       if (number_of_frames == current_sample)
       {
@@ -46,6 +45,7 @@ private:
 
       size_t number_of_frames_to_write = std::min(number_of_frames - current_sample, ad->avail_update());
 
+      void const* data_offset = static_cast<char const*>(mapping.data()) + current_sample * frame_size;
       size_t written = ad->write(data_offset, number_of_frames_to_write);
       current_sample += written;
    }
@@ -69,6 +69,19 @@ private:
    operation_cancelation oc;
 };
 
+snd_pcm_format_t wave_bps_to_alsa_format(boost::uint16_t bits_per_sample)
+{
+   switch (bits_per_sample)
+   {
+   case 8:
+      return SND_PCM_FORMAT_U8;
+   case 16:
+      return SND_PCM_FORMAT_S16_LE;
+   default:
+      throw std::runtime_error("unknown bits per sample value");
+   }
+}
+
 int main(int , char *[])
 {
    try
@@ -79,19 +92,12 @@ int main(int , char *[])
       std::cout << "channels:        " << mapping.format().channels        << std::endl;
       std::cout << "sample rate:     " << mapping.format().sample_rate     << std::endl;
 
-      if (mapping.format().format != 1)
-         throw std::runtime_error("unknown wave format");
-      if (mapping.format().bits_per_sample != 16)
-         throw std::runtime_error("only 16bit wave file are supported");
-      if ((mapping.size() % (2 * mapping.format().channels)) != 0)
-         throw std::runtime_error("invalid data size");
-
       asound::global_config_cleanup cfg_cleanup;
       boost::asio::io_service io_service;
 
       asound::pcm::device d("default", SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
 
-      d.set_params(SND_PCM_FORMAT_S16,
+      d.set_params(wave_bps_to_alsa_format(mapping.format().bits_per_sample),
                    SND_PCM_ACCESS_RW_INTERLEAVED,
                    mapping.format().channels,
                    mapping.format().sample_rate,
