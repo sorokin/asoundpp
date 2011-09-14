@@ -1,12 +1,17 @@
-#include "asound_async.hpp"
-
 #include <iostream>
 #include <vector>
+#include <stdexcept>
 
 #include <boost/bind.hpp>
 #include <boost/optional.hpp>
+#include <boost/make_shared.hpp>
 
 #include <boost/iostreams/device/mapped_file.hpp>
+
+#include "input_stream.h"
+
+namespace
+{
 
 struct chunk_header
 {
@@ -93,46 +98,72 @@ void verify_data_chunk_header(chunk_header const& data_hdr, fmt_chunk const& fmt
       throw std::runtime_error("data chunk size is not in multiples of frame size");
 }
 
-struct wave_file_mapping
+struct wave_file : input_stream
 {
-   explicit wave_file_mapping(std::string const& filename)
+   explicit wave_file(std::string const& filename)
       : mapping(filename)
+      , current_frame()
    {
-      riff = read_chunk<riff_header>(mapping, 0);
+      riff_header riff = read_chunk<riff_header>(mapping, 0);
       verify_riff_header(riff, mapping.size());
 
-      fmt = read_chunk<fmt_chunk>(mapping, sizeof(riff_header));
+      fmt_chunk fmt = read_chunk<fmt_chunk>(mapping, sizeof(riff_header));
       verify_fmt_chunk(fmt);
 
       size_t data_hdr_offset = sizeof(riff_header) + sizeof(fmt_chunk);
-      data_hdr = read_chunk<chunk_header>(mapping, data_hdr_offset);
+      chunk_header data_hdr = read_chunk<chunk_header>(mapping, data_hdr_offset);
       verify_data_chunk_header(data_hdr, fmt, data_hdr_offset, mapping.size());
+
+      myformat.sample_rate = fmt.sample_rate;
+      myformat.channels    = fmt.channels;
+      myformat.sample_size = fmt.bits_per_sample / 8;
+
+      number_of_frames_ = data_hdr.size / myformat.frame_size();
    }
 
-   void const* data() const
+   char const* data() const
    {
       return mapping.data() + sizeof(riff_header) + sizeof(fmt_chunk) + sizeof(chunk_header);
    }
 
-   size_t size() const
+   size_t number_of_frames()
    {
-      return data_hdr.size;
+      return number_of_frames_;
    }
 
-   size_t number_of_frames() const
+   format get_format()
    {
-      return size() / format().frame_size();
+      return myformat;
    }
 
-   fmt_chunk const& format() const
+   void seek(size_t frame_n)
    {
-      return fmt;
+      current_frame = frame_n;
+   }
+
+   size_t get_position()
+   {
+      return current_frame;
+   }
+
+   void read(void* buf, size_t n)
+   {
+      assert((current_frame + n) <= number_of_frames_);
+      memcpy(buf, data() + current_frame * myformat.frame_size(), n * myformat.frame_size());
+      current_frame += n;
    }
 
 private:
    boost::iostreams::mapped_file_source mapping;
 
-   riff_header riff;
-   fmt_chunk fmt;
-   chunk_header data_hdr;
+   input_stream::format myformat;
+   size_t               number_of_frames_;
+   size_t               current_frame;
 };
+
+}
+
+input_stream_sp open_wave_file(std::string const& filename)
+{
+   return boost::make_shared<wave_file>(filename);
+}
