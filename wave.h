@@ -98,14 +98,14 @@ struct wave_file_mapping
    explicit wave_file_mapping(std::string const& filename)
       : mapping(filename)
    {
-      riff_header const& riff = read_chunk<riff_header>(mapping, 0);
+      riff = read_chunk<riff_header>(mapping, 0);
       verify_riff_header(riff, mapping.size());
 
-      fmt_chunk const& fmt = read_chunk<fmt_chunk>(mapping, sizeof(riff_header));
+      fmt = read_chunk<fmt_chunk>(mapping, sizeof(riff_header));
       verify_fmt_chunk(fmt);
 
       size_t data_hdr_offset = sizeof(riff_header) + sizeof(fmt_chunk);
-      chunk_header const& data_hdr = read_chunk<chunk_header>(mapping, data_hdr_offset);
+      data_hdr = read_chunk<chunk_header>(mapping, data_hdr_offset);
       verify_data_chunk_header(data_hdr, fmt, data_hdr_offset, mapping.size());
    }
 
@@ -116,8 +116,7 @@ struct wave_file_mapping
 
    size_t size() const
    {
-      size_t data_hdr_offset = sizeof(riff_header) + sizeof(fmt_chunk);
-      return read_chunk<chunk_header>(mapping, data_hdr_offset).size;
+      return data_hdr.size;
    }
 
    size_t number_of_frames() const
@@ -127,9 +126,13 @@ struct wave_file_mapping
 
    fmt_chunk const& format() const
    {
-      return read_chunk<fmt_chunk>(mapping, sizeof(riff_header));
+      return fmt;
    }
 
 private:
    boost::iostreams::mapped_file_source mapping;
+
+   riff_header riff;
+   fmt_chunk fmt;
+   chunk_header data_hdr;
 };
