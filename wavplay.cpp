@@ -11,6 +11,8 @@
 
 struct pcm_test
 {
+   typedef boost::function<void (const boost::system::error_code&, int)> do_signal_t;
+
    pcm_test(boost::asio::io_service& io_service,
             asound::pcm::device& d,
             wave_file_mapping const& mapping)
@@ -22,7 +24,8 @@ struct pcm_test
       , mapping(mapping)
       , current_sample(0)
    {
-      ss.async_wait(boost::bind(&pcm_test::close_device, this));
+      do_signal_t ds = boost::bind(&pcm_test::close_device, this);
+      ss.async_wait(oc.wrap(ds));
       current_sample = mapping.size() / (2 * mapping.format().channels) - 200000;
    }
 
@@ -38,7 +41,7 @@ private:
       if (number_of_samples == current_sample)
       {
          // how to drain device asynchonously?
-         ad = boost::none;
+         close_device();
          return;
       }
 
@@ -46,12 +49,16 @@ private:
 
       size_t written = ad->write(data_offset, number_of_samples_to_write);
       current_sample += written;
+   }
 
-      //std::cout << number_of_samples_to_write << " " << written << std::endl;
+   void do_signal(const boost::system::error_code&, int /*sig_num*/)
+   {
+      ad = boost::none;
    }
 
    void close_device()
    {
+      ss.cancel();
       ad = boost::none;
    }
 
@@ -60,6 +67,7 @@ private:
    boost::optional<asound::pcm::async_device> ad;
    wave_file_mapping const& mapping;
    size_t current_sample;
+   operation_cancelation oc;
 };
 
 int main(int , char *[])

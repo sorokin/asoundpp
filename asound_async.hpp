@@ -57,6 +57,8 @@ namespace asound
          typedef boost::function<void ()> on_write_t;
          typedef boost::function<void ()> on_error_t;
 
+         typedef boost::function<void (const boost::system::error_code&, std::size_t)> do_read_t;
+
          async_device(boost::asio::io_service& io_service,
                       asound::pcm::device& d,
                       on_write_t on_write,
@@ -101,8 +103,9 @@ namespace asound
       private:
          void start_wait()
          {
+            do_read_t do_read = boost::bind(&async_device::after_wait, this, _1, _2);
             impl->sd.async_read_some(boost::asio::null_buffers(),
-                                     impl->oc.wrap(boost::bind(&async_device::after_wait, this, _1, _2)));
+                                     impl->oc.wrap(do_read));
          }
 
          void after_wait(const boost::system::error_code& error,
@@ -124,8 +127,8 @@ namespace asound
                }
                else if (r & POLLOUT)
                {
-                  on_write();
                   start_wait();
+                  on_write();
                }
                else
                   start_wait();
@@ -135,6 +138,8 @@ namespace asound
                impl = boost::none;
                on_error();
             }
+
+            // should do nothing after user callback is called, cause user can delete us
          }
 
       private:
