@@ -39,14 +39,22 @@ private:
          return;
       }
 
-      size_t number_of_frames_to_write = std::min(stream.number_of_frames() - stream.get_position(), ad->avail_update());
-      if (number_of_frames_to_write == 0)
-         return;
+      try
+      {
+         size_t number_of_frames_to_write = std::min(stream.number_of_frames() - stream.get_position(), ad->avail_update());
+         if (number_of_frames_to_write == 0)
+            return;
 
-      std::vector<char> buf(number_of_frames_to_write * stream.get_format().frame_size());
-      stream.read(&buf[0], number_of_frames_to_write);
-      size_t written = ad->write(&buf[0], number_of_frames_to_write);
-      assert(written == number_of_frames_to_write);
+         std::vector<char> buf(number_of_frames_to_write * stream.get_format().frame_size());
+         stream.read(&buf[0], number_of_frames_to_write);
+         size_t written = ad->write(&buf[0], number_of_frames_to_write);
+         assert(written == number_of_frames_to_write);
+      }
+      catch (std::exception const& e)
+      {
+         std::cerr << "error: " << e.what() << std::endl;
+         close_device();
+      }
    }
 
    void do_signal(const boost::system::error_code&, int /*sig_num*/)
@@ -85,11 +93,12 @@ int main(int , char *[])
 {
    try
    {
-      input_stream_sp stream = open_wave_file("/home/ivan/d/alsa/asoundpp/1.wav");
+      //input_stream_sp stream = open_wave_file("/home/ivan/d/alsa/asoundpp/1.wav");
+      input_stream_sp stream = open_flac_file("/home/ivan/d/alsa/1.flac");
 
-      std::cout << "bits per sample: " << stream->get_format().sample_size * 8 << std::endl;
-      std::cout << "channels:        " << stream->get_format().channels        << std::endl;
-      std::cout << "sample rate:     " << stream->get_format().sample_rate     << std::endl;
+      std::cerr << "bits per sample: " << stream->get_format().sample_size * 8 << std::endl;
+      std::cerr << "channels:        " << stream->get_format().channels        << std::endl;
+      std::cerr << "sample rate:     " << stream->get_format().sample_rate     << std::endl;
 
       asound::global_config_cleanup cfg_cleanup;
       boost::asio::io_service io_service;
