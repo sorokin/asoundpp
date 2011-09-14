@@ -137,7 +137,7 @@ asound::pcm::info::info(info const& other)
    snd_pcm_info_copy(p, other.p);
 }
 
-asound::pcm::info::info& asound::pcm::info::operator=(info const& rhs)
+asound::pcm::info& asound::pcm::info::operator=(info const& rhs)
 {
    snd_pcm_info_copy(p, rhs.p);
    return *this;
