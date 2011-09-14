@@ -26,7 +26,6 @@ struct pcm_test
    {
       do_signal_t ds = boost::bind(&pcm_test::close_device, this);
       ss.async_wait(oc.wrap(ds));
-      current_sample = mapping.size() / (2 * mapping.format().channels) - 200000;
    }
 
 private:
@@ -34,20 +33,20 @@ private:
    {
       assert(ad);
 
-      size_t sample_size = 2 * mapping.format().channels;
-      size_t number_of_samples = mapping.size() / sample_size;
-      void const* data_offset = static_cast<char const*>(mapping.data()) + current_sample * sample_size;
+      size_t frame_size = mapping.format().sample_size() * mapping.format().channels;
+      size_t number_of_frames = mapping.size() / frame_size;
+      void const* data_offset = static_cast<char const*>(mapping.data()) + current_sample * frame_size;
 
-      if (number_of_samples == current_sample)
+      if (number_of_frames == current_sample)
       {
          // how to drain device asynchonously?
          close_device();
          return;
       }
 
-      size_t number_of_samples_to_write = std::min(number_of_samples - current_sample, ad->avail_update());
+      size_t number_of_frames_to_write = std::min(number_of_frames - current_sample, ad->avail_update());
 
-      size_t written = ad->write(data_offset, number_of_samples_to_write);
+      size_t written = ad->write(data_offset, number_of_frames_to_write);
       current_sample += written;
    }
 

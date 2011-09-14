@@ -29,6 +29,17 @@ struct fmt_chunk
    boost::uint32_t byte_rate;
    boost::uint16_t block_align;
    boost::uint16_t bits_per_sample;
+
+   size_t sample_size() const
+   {
+      assert((bits_per_sample % 8) == 0);
+      return bits_per_sample / 8;
+   }
+
+   size_t frame_size() const
+   {
+      return sample_size() * channels;
+   }
 };
 
 template <typename T>
@@ -62,6 +73,9 @@ void verify_fmt_chunk(fmt_chunk const& fmt)
 
    if (fmt.hdr.size != sizeof(fmt_chunk) - sizeof(chunk_header))
       throw std::runtime_error("mismatched size of fmt header");
+
+   if ((fmt.bits_per_sample % 8) != 0)
+      throw std::runtime_error("bits_per_sample is not in multiples of 8");
 }
 
 void verify_data_chunk_header(chunk_header const& data_hdr, size_t offset, size_t actual_file_size)
