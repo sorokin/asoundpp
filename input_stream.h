@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include <boost/shared_ptr.hpp>
+#include <alsa/asoundlib.h>
 
 struct input_stream
 {
@@ -10,7 +11,7 @@ struct input_stream
    {
       unsigned sample_rate;
       unsigned channels;
-      size_t   sample_size; // bytes
+      snd_pcm_format_t fmt;
 
       size_t frame_size() const;
    };

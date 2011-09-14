@@ -149,24 +149,25 @@ private:
    {
       decoder* d = static_cast<decoder*>(client_data);
 
-      if (!d->metadata_)
-      {
-         if ((fmetadata->data.stream_info.bits_per_sample % 8) == 0)
-         {
-            format fmt;
-            size_t number_of_frames  = fmetadata->data.stream_info.total_samples;
-            fmt.sample_rate       = fmetadata->data.stream_info.sample_rate;
-            fmt.channels          = fmetadata->data.stream_info.channels;
-            fmt.sample_size       = fmetadata->data.stream_info.bits_per_sample / 8;
-            d->metadata_ = std::make_pair(fmt, number_of_frames);
-         }
-         else
-            d->set_last_error("bits per sample is not in multiples of 8");
-      }
-      else
+      if (d->metadata_)
       {
          d->set_last_error("duplicate metadata");
+         return;
       }
+
+      if (fmetadata->data.stream_info.bits_per_sample != 16)
+      {
+         d->set_last_error("only 16 bits per sample is supported");
+         return;
+      }
+
+      format fmt;
+      size_t number_of_frames  = fmetadata->data.stream_info.total_samples;
+      fmt.sample_rate          = fmetadata->data.stream_info.sample_rate;
+      fmt.channels             = fmetadata->data.stream_info.channels;
+      fmt.fmt                  = SND_PCM_FORMAT_S16_LE;
+
+      d->metadata_ = std::make_pair(fmt, number_of_frames);
    }
 
    static void do_error(const FLAC__StreamDecoder*, FLAC__StreamDecoderErrorStatus status, void* client_data)

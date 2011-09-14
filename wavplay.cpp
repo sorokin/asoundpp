@@ -76,19 +76,6 @@ private:
    operation_cancelation oc;
 };
 
-snd_pcm_format_t wave_bps_to_alsa_format(boost::uint16_t sample_size)
-{
-   switch (sample_size)
-   {
-   case 1:
-      return SND_PCM_FORMAT_U8;
-   case 2:
-      return SND_PCM_FORMAT_S16_LE;
-   default:
-      throw std::runtime_error("unknown bits per sample value");
-   }
-}
-
 int main(int , char *[])
 {
    try
@@ -96,7 +83,8 @@ int main(int , char *[])
       //input_stream_sp stream = open_wave_file("/home/ivan/d/alsa/asoundpp/1.wav");
       input_stream_sp stream = open_flac_file("/home/ivan/d/alsa/1.flac");
 
-      std::cerr << "bits per sample: " << stream->get_format().sample_size * 8 << std::endl;
+      std::cerr << "format:          " << snd_pcm_format_name(stream->get_format().fmt)
+                << " (" << snd_pcm_format_description(stream->get_format().fmt) << ")" <<std::endl;
       std::cerr << "channels:        " << stream->get_format().channels        << std::endl;
       std::cerr << "sample rate:     " << stream->get_format().sample_rate     << std::endl;
 
@@ -105,7 +93,7 @@ int main(int , char *[])
 
       asound::pcm::device d("default", SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
 
-      d.set_params(wave_bps_to_alsa_format(stream->get_format().sample_size),
+      d.set_params(stream->get_format().fmt,
                    SND_PCM_ACCESS_RW_INTERLEAVED,
                    stream->get_format().channels,
                    stream->get_format().sample_rate,

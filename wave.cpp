@@ -98,6 +98,19 @@ void verify_data_chunk_header(chunk_header const& data_hdr, fmt_chunk const& fmt
       throw std::runtime_error("data chunk size is not in multiples of frame size");
 }
 
+snd_pcm_format_t wave_bps_to_alsa_format(boost::uint16_t sample_size)
+{
+   switch (sample_size)
+   {
+   case 8:
+      return SND_PCM_FORMAT_U8;
+   case 16:
+      return SND_PCM_FORMAT_S16_LE;
+   default:
+      throw std::runtime_error("unknown bits per sample value");
+   }
+}
+
 struct wave_file : input_stream
 {
    explicit wave_file(std::string const& filename)
@@ -116,7 +129,7 @@ struct wave_file : input_stream
 
       myformat.sample_rate = fmt.sample_rate;
       myformat.channels    = fmt.channels;
-      myformat.sample_size = fmt.bits_per_sample / 8;
+      myformat.fmt         = wave_bps_to_alsa_format(fmt.bits_per_sample);
 
       number_of_frames_ = data_hdr.size / myformat.frame_size();
    }
