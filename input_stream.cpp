@@ -23,7 +23,7 @@ namespace
       case SND_PCM_FORMAT_S32_LE:
       case SND_PCM_FORMAT_U32_BE:
       case SND_PCM_FORMAT_S32_BE:
-         return 3;
+         return 4;
       default:
          assert(false);
       }
