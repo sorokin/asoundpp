@@ -77,14 +77,31 @@ struct decoder : input_stream
    {
       check_last_error_and_throw();
 
+      bool workaround_seek_to_end = (frame_n == number_of_frames());
+
+      if (workaround_seek_to_end)
+         --frame_n;
+
       current_pos = frame_n;
 
       written_data.clear();
+
       int res = FLAC__stream_decoder_seek_absolute(dec, frame_n); // TODO: handle error and reset (!) decoder
       if (res == 0)
       {
-         set_last_error("seek failed");
+         std::stringstream ss;
+         ss << "seek failed (" << frame_n << " of " << number_of_frames() << ")";
+         set_last_error(ss.str());
          check_last_error_and_throw();
+      }
+
+      // seek absolute calls do_write
+
+      if (workaround_seek_to_end)
+      {
+         assert(written_data.size() == get_format().frame_size());
+         written_data.clear();
+         current_pos = frame_n + 1;
       }
    }
 
@@ -110,9 +127,22 @@ struct decoder : input_stream
             return;
          }
 
+         size_t old_size = written_data.size();
+
          int res = FLAC__stream_decoder_process_single(dec);
          if (res == 0)
             set_last_error("unknown error"); // set if isn't set already
+
+         if (written_data.size() == old_size)
+         {
+            FLAC__StreamDecoderState state = FLAC__stream_decoder_get_state(dec);
+
+            std::stringstream ss;
+            ss << "flac read: process_single is called, but no data received (state: "
+               << FLAC__StreamDecoderStateString[state] << ", current_pos: "
+               << current_pos << ", size: " << this->number_of_frames() << ")";
+            throw std::runtime_error(ss.str());
+         }
 
          check_last_error_and_throw();
       }
@@ -126,13 +156,17 @@ private:
    {
       decoder* d = static_cast<decoder*>(client_data);
 
+      assert(frame->header.number_type == FLAC__FRAME_NUMBER_TYPE_SAMPLE_NUMBER);
+      if (frame->header.number.sample_number != (d->current_pos + (d->written_data.size() / d->get_format().frame_size())))
+         std::cerr << frame->header.number.sample_number << " "
+                   << d->current_pos << " "
+                   << (d->written_data.size() / d->get_format().frame_size()) << std::endl;
+
       try
       {
          for (unsigned i = 0; i != frame->header.blocksize; ++i)
-         {
-            d->write_i16(buffer[0][i]);
-            d->write_i16(buffer[1][i]);
-         }
+            for (unsigned c = 0; c != frame->header.channels; ++c)
+               d->write_i16(buffer[c][i]);
       }
       catch (std::exception const& e)
       {
