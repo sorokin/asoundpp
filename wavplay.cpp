@@ -116,6 +116,7 @@ struct keyboard_handler
    {
       std::string t(output_buf.begin(), output_buf.begin() + n);
       output_buf.erase(output_buf.begin(), output_buf.begin() + n);
+      // TODO: do something to allow destroying from callback
       on_key(t);
    }
 
