@@ -193,14 +193,14 @@ private:
 
       try
       {
-         size_t get_size_to_write = std::min(stream.get_size() - stream.get_position(), ad->avail_update());
-         if (get_size_to_write == 0)
+         size_t frames_to_write = std::min(stream.get_size() - stream.get_position(), ad->avail_update());
+         if (frames_to_write == 0)
             return;
 
-         std::vector<char> buf(get_size_to_write * stream.get_format().frame_size());
-         stream.read(&buf[0], get_size_to_write);
-         size_t written = ad->write(&buf[0], get_size_to_write);
-         assert(written == get_size_to_write);
+         std::vector<char> buf(frames_to_write * stream.get_format().frame_size());
+         stream.read(&buf[0], frames_to_write);
+         size_t written = ad->write(&buf[0], frames_to_write);
+         assert(written == frames_to_write);
       }
       catch (std::exception const& e)
       {
