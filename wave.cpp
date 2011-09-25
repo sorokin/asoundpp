@@ -149,7 +149,7 @@ struct wave_file : input_stream
       return myformat;
    }
 
-   void seek(size_t frame_n)
+   void set_position(size_t frame_n)
    {
       current_frame = frame_n;
    }

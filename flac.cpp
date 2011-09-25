@@ -73,7 +73,7 @@ struct decoder : input_stream
       return metadata_->second;
    }
 
-   void seek(size_t frame_n)
+   void set_position(size_t frame_n)
    {
       check_last_error_and_throw();
 

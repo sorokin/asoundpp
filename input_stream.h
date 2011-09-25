@@ -21,7 +21,7 @@ struct input_stream
    virtual format get_format() = 0;
    virtual size_t get_size() = 0;
 
-   virtual void seek(size_t frame_n) = 0;
+   virtual void set_position(size_t frame_n) = 0;
    virtual size_t get_position() = 0;
 
    virtual void read(void* buf, size_t get_size) = 0; // read get_size * get_format().frame_size() bytes

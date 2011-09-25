@@ -165,7 +165,7 @@ private:
             p = 0;
          else
             p -= seek_size;
-         stream.seek(p);
+         stream.set_position(p);
       }
       else if (seq == "\x1b[C")
       {
@@ -176,7 +176,7 @@ private:
             p = s;
          else
             p += seek_size;
-         stream.seek(p);
+         stream.set_position(p);
       }
    }
 
