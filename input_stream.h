@@ -32,10 +32,10 @@ struct input_stream
    virtual void read(void* buf, size_t size) = 0; // read size * get_format().frame_size() bytes
 };
 
+typedef boost::shared_ptr<input_stream> input_stream_sp;
+
 void seek_backward(input_stream& stream, size_t frame_n);
 void seek_forward(input_stream& stream, size_t frame_n);
-
-typedef boost::shared_ptr<input_stream> input_stream_sp;
 
 input_stream_sp open_wave_file(std::string const& filename);
 input_stream_sp open_flac_file(std::string const& filename);
