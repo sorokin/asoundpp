@@ -115,11 +115,11 @@ struct decoder : input_stream
       return metadata_->second - current_pos;
    }
 
-   void read(void* buf, size_t get_size)
+   void read(void* buf, size_t size)
    {
       check_last_error_and_throw();
 
-      size_t number_of_bytes = get_size * get_format().frame_size();
+      size_t number_of_bytes = size * get_format().frame_size();
 
       for (;;)
       {
@@ -128,7 +128,7 @@ struct decoder : input_stream
             std::copy(written_data.begin(), written_data.begin() + number_of_bytes, static_cast<char*>(buf));
             written_data.erase(written_data.begin(), written_data.begin() + number_of_bytes);
 
-            current_pos += get_size;
+            current_pos += size;
             return;
          }
 
@@ -201,12 +201,12 @@ private:
       }
 
       format fmt;
-      size_t get_size  = fmetadata->data.stream_info.total_samples;
+      size_t size  = fmetadata->data.stream_info.total_samples;
       fmt.sample_rate          = fmetadata->data.stream_info.sample_rate;
       fmt.channels             = fmetadata->data.stream_info.channels;
       fmt.fmt                  = SND_PCM_FORMAT_S16_LE;
 
-      d->metadata_ = std::make_pair(fmt, get_size);
+      d->metadata_ = std::make_pair(fmt, size);
    }
 
    static void do_error(const FLAC__StreamDecoder*, FLAC__StreamDecoderErrorStatus status, void* client_data)

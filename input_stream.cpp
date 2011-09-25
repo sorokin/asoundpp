@@ -30,6 +30,18 @@ namespace
    }
 }
 
+input_stream::format::format()
+   : sample_rate()
+   , channels()
+   , fmt(SND_PCM_FORMAT_UNKNOWN)
+{}
+
+input_stream::format::format(unsigned sample_rate, unsigned channels, snd_pcm_format_t fmt)
+   : sample_rate(sample_rate)
+   , channels(channels)
+   , fmt(fmt)
+{}
+
 size_t input_stream::format::frame_size() const
 {
    return sample_size(fmt) * channels;

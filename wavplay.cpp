@@ -219,7 +219,8 @@ int main(int , char *[])
    try
    {
       //input_stream_sp stream = open_wave_file("/home/ivan/d/alsa/asoundpp/1.wav");
-      input_stream_sp stream = open_flac_file("/home/ivan/d/alsa/1.flac");
+      //input_stream_sp stream = open_flac_file("/home/ivan/d/alsa/1.flac");
+      input_stream_sp stream = open_sine_generator(input_stream::format(44100, 2, SND_PCM_FORMAT_S16), 440);
 
       std::cerr << "format:          " << snd_pcm_format_name(stream->get_format().fmt)
                 << " (" << snd_pcm_format_description(stream->get_format().fmt) << ")" <<std::endl;

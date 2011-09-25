@@ -10,11 +10,13 @@ struct input_stream
 {
    struct format
    {
+      format();
+      format(unsigned sample_rate, unsigned channels, snd_pcm_format_t fmt);
+      size_t frame_size() const;
+
       unsigned sample_rate;
       unsigned channels;
       snd_pcm_format_t fmt;
-
-      size_t frame_size() const;
    };
 
    virtual ~input_stream() = 0;
@@ -27,7 +29,7 @@ struct input_stream
 
    virtual size_t get_available() = 0;
 
-   virtual void read(void* buf, size_t get_size) = 0; // read get_size * get_format().frame_size() bytes
+   virtual void read(void* buf, size_t size) = 0; // read size * get_format().frame_size() bytes
 };
 
 void seek_backward(input_stream& stream, size_t frame_n);
@@ -37,5 +39,6 @@ typedef boost::shared_ptr<input_stream> input_stream_sp;
 
 input_stream_sp open_wave_file(std::string const& filename);
 input_stream_sp open_flac_file(std::string const& filename);
+input_stream_sp open_sine_generator(input_stream::format const& fmt, double freq);
 
 #endif // INPUT_STREAM_H
