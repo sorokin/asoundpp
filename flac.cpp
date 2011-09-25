@@ -68,7 +68,7 @@ struct decoder : input_stream
       return metadata_->first;
    }
 
-   size_t get_size()
+   boost::optional<size_t> get_size()
    {
       return metadata_->second;
    }
@@ -108,6 +108,11 @@ struct decoder : input_stream
    size_t get_position()
    {
       return current_pos;
+   }
+
+   size_t get_available()
+   {
+      return metadata_->second - current_pos;
    }
 
    void read(void* buf, size_t get_size)

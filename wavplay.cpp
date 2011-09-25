@@ -158,26 +158,9 @@ private:
       if (seq == "q")
          close_device();
       else if (seq == "\x1b[D")
-      {
-         size_t p = stream.get_position();
-         size_t seek_size = stream.get_format().sample_rate * 5;
-         if (p < seek_size)
-            p = 0;
-         else
-            p -= seek_size;
-         stream.set_position(p);
-      }
+         seek_backward(stream, stream.get_format().sample_rate * 5);
       else if (seq == "\x1b[C")
-      {
-         size_t p = stream.get_position();
-         size_t s = stream.get_size();
-         size_t seek_size = stream.get_format().sample_rate * 5;
-         if ((s - p) < seek_size)
-            p = s;
-         else
-            p += seek_size;
-         stream.set_position(p);
-      }
+         seek_forward(stream, stream.get_format().sample_rate * 5);
    }
 
    void do_write()
@@ -193,7 +176,7 @@ private:
 
       try
       {
-         size_t frames_to_write = std::min(stream.get_size() - stream.get_position(), ad->avail_update());
+         size_t frames_to_write = std::min(stream.get_available(), ad->avail_update());
          if (frames_to_write == 0)
             return;
 
