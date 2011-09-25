@@ -170,7 +170,7 @@ private:
       else if (seq == "\x1b[C")
       {
          size_t p = stream.get_position();
-         size_t s = stream.number_of_frames();
+         size_t s = stream.get_size();
          size_t seek_size = stream.get_format().sample_rate * 5;
          if ((s - p) < seek_size)
             p = s;
@@ -184,7 +184,7 @@ private:
    {
       assert(ad);
 
-      if (stream.number_of_frames() == stream.get_position())
+      if (stream.get_size() == stream.get_position())
       {
          // how to drain device asynchonously?
          close_device();
@@ -193,14 +193,14 @@ private:
 
       try
       {
-         size_t number_of_frames_to_write = std::min(stream.number_of_frames() - stream.get_position(), ad->avail_update());
-         if (number_of_frames_to_write == 0)
+         size_t get_size_to_write = std::min(stream.get_size() - stream.get_position(), ad->avail_update());
+         if (get_size_to_write == 0)
             return;
 
-         std::vector<char> buf(number_of_frames_to_write * stream.get_format().frame_size());
-         stream.read(&buf[0], number_of_frames_to_write);
-         size_t written = ad->write(&buf[0], number_of_frames_to_write);
-         assert(written == number_of_frames_to_write);
+         std::vector<char> buf(get_size_to_write * stream.get_format().frame_size());
+         stream.read(&buf[0], get_size_to_write);
+         size_t written = ad->write(&buf[0], get_size_to_write);
+         assert(written == get_size_to_write);
       }
       catch (std::exception const& e)
       {

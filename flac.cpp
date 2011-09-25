@@ -68,7 +68,7 @@ struct decoder : input_stream
       return metadata_->first;
    }
 
-   size_t number_of_frames()
+   size_t get_size()
    {
       return metadata_->second;
    }
@@ -77,7 +77,7 @@ struct decoder : input_stream
    {
       check_last_error_and_throw();
 
-      bool workaround_seek_to_end = (frame_n == number_of_frames());
+      bool workaround_seek_to_end = (frame_n == get_size());
 
       if (workaround_seek_to_end)
          --frame_n;
@@ -90,7 +90,7 @@ struct decoder : input_stream
       if (res == 0)
       {
          std::stringstream ss;
-         ss << "seek failed (" << frame_n << " of " << number_of_frames() << ")";
+         ss << "seek failed (" << frame_n << " of " << get_size() << ")";
          set_last_error(ss.str());
          check_last_error_and_throw();
       }
@@ -110,11 +110,11 @@ struct decoder : input_stream
       return current_pos;
    }
 
-   void read(void* buf, size_t number_of_frames)
+   void read(void* buf, size_t get_size)
    {
       check_last_error_and_throw();
 
-      size_t number_of_bytes = number_of_frames * get_format().frame_size();
+      size_t number_of_bytes = get_size * get_format().frame_size();
 
       for (;;)
       {
@@ -123,7 +123,7 @@ struct decoder : input_stream
             std::copy(written_data.begin(), written_data.begin() + number_of_bytes, static_cast<char*>(buf));
             written_data.erase(written_data.begin(), written_data.begin() + number_of_bytes);
 
-            current_pos += number_of_frames;
+            current_pos += get_size;
             return;
          }
 
@@ -140,7 +140,7 @@ struct decoder : input_stream
             std::stringstream ss;
             ss << "flac read: process_single is called, but no data received (state: "
                << FLAC__StreamDecoderStateString[state] << ", current_pos: "
-               << current_pos << ", size: " << this->number_of_frames() << ")";
+               << current_pos << ", size: " << this->get_size() << ")";
             throw std::runtime_error(ss.str());
          }
 
@@ -196,12 +196,12 @@ private:
       }
 
       format fmt;
-      size_t number_of_frames  = fmetadata->data.stream_info.total_samples;
+      size_t get_size  = fmetadata->data.stream_info.total_samples;
       fmt.sample_rate          = fmetadata->data.stream_info.sample_rate;
       fmt.channels             = fmetadata->data.stream_info.channels;
       fmt.fmt                  = SND_PCM_FORMAT_S16_LE;
 
-      d->metadata_ = std::make_pair(fmt, number_of_frames);
+      d->metadata_ = std::make_pair(fmt, get_size);
    }
 
    static void do_error(const FLAC__StreamDecoder*, FLAC__StreamDecoderErrorStatus status, void* client_data)

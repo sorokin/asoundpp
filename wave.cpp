@@ -131,7 +131,7 @@ struct wave_file : input_stream
       myformat.channels    = fmt.channels;
       myformat.fmt         = wave_bps_to_alsa_format(fmt.bits_per_sample);
 
-      number_of_frames_ = data_hdr.size / myformat.frame_size();
+      get_size_ = data_hdr.size / myformat.frame_size();
    }
 
    char const* data() const
@@ -139,9 +139,9 @@ struct wave_file : input_stream
       return mapping.data() + sizeof(riff_header) + sizeof(fmt_chunk) + sizeof(chunk_header);
    }
 
-   size_t number_of_frames()
+   size_t get_size()
    {
-      return number_of_frames_;
+      return get_size_;
    }
 
    format get_format()
@@ -161,7 +161,7 @@ struct wave_file : input_stream
 
    void read(void* buf, size_t n)
    {
-      assert((current_frame + n) <= number_of_frames_);
+      assert((current_frame + n) <= get_size_);
       memcpy(buf, data() + current_frame * myformat.frame_size(), n * myformat.frame_size());
       current_frame += n;
    }
@@ -170,7 +170,7 @@ private:
    boost::iostreams::mapped_file_source mapping;
 
    input_stream::format myformat;
-   size_t               number_of_frames_;
+   size_t               get_size_;
    size_t               current_frame;
 };
 
