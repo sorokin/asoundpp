@@ -200,7 +200,6 @@ private:
    asound::pcm::async_device ad;
    keyboard_handler kh;
    input_stream& stream;
-   size_t current_sample;
    operation_cancelation oc;
    on_quit_t on_quit;
 };
