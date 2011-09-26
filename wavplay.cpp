@@ -220,12 +220,12 @@ int main(int , char *[])
    {
       //input_stream_sp stream = open_wave_file("/home/ivan/d/alsa/asoundpp/1.wav");
       //input_stream_sp stream = open_flac_file("/home/ivan/d/alsa/1.flac");
-      input_stream_sp stream = open_sine_generator(input_stream::format(44100, 2, SND_PCM_FORMAT_S16), 440);
+      input_stream_sp stream = open_sine_generator(input_stream::format(44100, 1, SND_PCM_FORMAT_S16), 440);
 
-      std::cerr << "format:          " << snd_pcm_format_name(stream->get_format().fmt)
+      std::cerr << "format:       " << snd_pcm_format_name(stream->get_format().fmt)
                 << " (" << snd_pcm_format_description(stream->get_format().fmt) << ")" <<std::endl;
-      std::cerr << "channels:        " << stream->get_format().channels        << std::endl;
-      std::cerr << "sample rate:     " << stream->get_format().sample_rate     << std::endl;
+      std::cerr << "channels:     " << stream->get_format().channels        << std::endl;
+      std::cerr << "sample rate:  " << stream->get_format().sample_rate     << std::endl;
 
       asound::global_config_cleanup cfg_cleanup;
       boost::asio::io_service io_service;
