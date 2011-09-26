@@ -15,6 +15,36 @@ struct operation_cancelation
       virtual void close() = 0;
    };
 
+   struct shared_object_impl0 : shared_object
+   {
+      typedef boost::function<void ()> on_called_t;
+      typedef boost::function<void ()> function_t;
+
+      shared_object_impl0(function_t const& f, on_called_t const& on_called)
+         : f(f)
+         , on_called(on_called)
+      {}
+
+      void close()
+      {
+         f = function_t();
+      }
+
+      void operator()() const
+      {
+         if (f)
+         {
+            f();
+            if (f) // double check required, because ~operation_cancelation and shared_object::close can be called from f
+               on_called();
+         }
+      }
+
+   private:
+      function_t f;
+      on_called_t on_called;
+   };
+
    template <typename T1>
    struct shared_object_impl1 : shared_object
    {
@@ -85,6 +115,15 @@ struct operation_cancelation
    {
       for (somap_t::const_iterator i = somap.begin(); i != somap.end(); ++i)
          i->second->close();
+   }
+
+   boost::function<void ()> wrap(boost::function<void ()> const& f)
+   {
+      boost::shared_ptr<shared_object_impl0> so = boost::make_shared<shared_object_impl0>(f, boost::bind(&operation_cancelation::delete_so, this, last_id_));
+      somap.insert(somap_t::value_type(last_id_, so));
+      ++last_id_;
+
+       return boost::bind(&shared_object_impl0::operator(), so);
    }
 
    template <typename T1>

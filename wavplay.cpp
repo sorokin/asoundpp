@@ -128,23 +128,26 @@ private:
    std::string output_buf;
 };
 
-struct pcm_test
+struct alsa_player
 {
    typedef boost::function<void (const boost::system::error_code&, int)> do_signal_t;
+   typedef boost::function<void ()> on_quit_t;
 
-   pcm_test(boost::asio::io_service& io_service,
-            asound::pcm::device& d,
-            input_stream& stream)
+   alsa_player(boost::asio::io_service& io_service,
+               asound::pcm::device& d,
+               input_stream& stream,
+               on_quit_t const& on_quit)
       : ss(io_service, SIGINT, SIGTERM, SIGQUIT)
-      , ad(boost::in_place(boost::ref(io_service),
-                           boost::ref(d),
-                           boost::bind(&pcm_test::do_write, this),
-                           boost::bind(&pcm_test::close_device, this)))
-      , kh(boost::in_place(boost::ref(io_service), STDIN_FILENO, boost::bind(&pcm_test::on_keyboard, this, _1)))
+      , ad(boost::ref(io_service),
+           boost::ref(d),
+           boost::bind(&alsa_player::do_write, this),
+           on_quit)
+      , kh(boost::ref(io_service), STDIN_FILENO, boost::bind(&alsa_player::on_keyboard, this, _1))
       , stream(stream)
+      , on_quit(on_quit)
    {
-      do_signal_t ds = boost::bind(&pcm_test::close_device, this);
-      ss.async_wait(oc.wrap(ds));
+      do_signal_t t = boost::bind(on_quit);
+      ss.async_wait(oc.wrap(t));
    }
 
 private:
@@ -156,7 +159,7 @@ private:
       std::cerr << "\n";
 #endif
       if (seq == "q")
-         close_device();
+         on_quit();
       else if (seq == "\x1b[D")
          seek_backward(stream, stream.get_format().sample_rate * 5);
       else if (seq == "\x1b[C")
@@ -165,12 +168,10 @@ private:
 
    void do_write()
    {
-      assert(ad);
-
       if (stream.get_size() == stream.get_position())
       {
          // how to drain device asynchonously?
-         close_device();
+         on_quit();
          return;
       }
 
@@ -179,41 +180,50 @@ private:
          boost::array<char, 16 * 1024> buf;
          size_t frames_to_write = buf.size() / stream.get_format().frame_size();
          frames_to_write = std::min(frames_to_write, stream.get_available());
-         frames_to_write = std::min(frames_to_write, ad->avail_update());
+         frames_to_write = std::min(frames_to_write, ad.avail_update());
          if (frames_to_write == 0)
             return;
 
          stream.read(&buf[0], frames_to_write);
-         size_t written = ad->write(&buf[0], frames_to_write);
+         size_t written = ad.write(&buf[0], frames_to_write);
          assert(written == frames_to_write);
       }
       catch (std::exception const& e)
       {
          std::cerr << "error: " << e.what() << std::endl;
-         close_device();
+         on_quit();
       }
-   }
-
-   void do_signal(const boost::system::error_code&, int /*sig_num*/)
-   {
-      ad = boost::none;
-      kh = boost::none;
-   }
-
-   void close_device()
-   {
-      ss.cancel();
-      ad = boost::none;
-      kh = boost::none;
    }
 
 private:
    boost::asio::signal_set ss;
-   boost::optional<asound::pcm::async_device> ad;
-   boost::optional<keyboard_handler> kh;
+   asound::pcm::async_device ad;
+   keyboard_handler kh;
    input_stream& stream;
    size_t current_sample;
    operation_cancelation oc;
+   on_quit_t on_quit;
+};
+
+struct optional_player
+{
+   optional_player(boost::asio::io_service& io_service,
+                   asound::pcm::device& d,
+                   input_stream& stream)
+      : player_(boost::in_place(boost::ref(io_service),
+                                boost::ref(d),
+                                boost::ref(stream),
+                                boost::bind(&optional_player::on_close, this)))
+   {}
+
+private:
+   void on_close()
+   {
+      player_ = boost::none;
+   }
+
+private:
+   boost::optional<alsa_player> player_;
 };
 
 int main(int , char *[])
@@ -243,7 +253,7 @@ int main(int , char *[])
 
       set_raw_terminal st(STDIN_FILENO);
 
-      pcm_test pcm_test(io_service, d, *stream);
+      optional_player pcm_test(io_service, d, *stream);
 
       io_service.run();
       std::cerr << "Have a nice day!" << std::endl;
