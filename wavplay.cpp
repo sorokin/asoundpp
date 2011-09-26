@@ -176,11 +176,13 @@ private:
 
       try
       {
-         size_t frames_to_write = std::min(stream.get_available(), ad->avail_update());
+         boost::array<char, 16 * 1024> buf;
+         size_t frames_to_write = buf.size() / stream.get_format().frame_size();
+         frames_to_write = std::min(frames_to_write, stream.get_available());
+         frames_to_write = std::min(frames_to_write, ad->avail_update());
          if (frames_to_write == 0)
             return;
 
-         std::vector<char> buf(frames_to_write * stream.get_format().frame_size());
          stream.read(&buf[0], frames_to_write);
          size_t written = ad->write(&buf[0], frames_to_write);
          assert(written == frames_to_write);
