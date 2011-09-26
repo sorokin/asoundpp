@@ -163,7 +163,8 @@ private:
 
       assert(frame->header.number_type == FLAC__FRAME_NUMBER_TYPE_SAMPLE_NUMBER);
       if (frame->header.number.sample_number != (d->current_pos + (d->written_data.size() / d->get_format().frame_size())))
-         std::cerr << frame->header.number.sample_number << " "
+         std::cerr << "non synchronized flac read: "
+                   << frame->header.number.sample_number << " "
                    << d->current_pos << " "
                    << (d->written_data.size() / d->get_format().frame_size()) << std::endl;
 

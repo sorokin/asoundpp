@@ -244,11 +244,11 @@ int main(int , char *[])
       pcm_test pcm_test(io_service, d, *stream);
 
       io_service.run();
-      std::cout << "Have a nice day!" << std::endl;
+      std::cerr << "Have a nice day!" << std::endl;
    }
    catch (std::exception const& e)
    {
-      std::cout << "exception: " << e.what() << std::endl;
+      std::cerr << "exception: " << e.what() << std::endl;
       return EXIT_FAILURE;
    }
 
