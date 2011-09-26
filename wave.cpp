@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <stdexcept>
 
@@ -54,7 +55,17 @@ T const& read_chunk(boost::iostreams::mapped_file_source const& mapping, size_t 
    size_t end = offset + sizeof(T);
 
    if (end > size)
-      throw std::runtime_error("unable to read chunk"); // TODO: more verbose
+   {
+      std::stringstream ss;
+      ss << "read chunk past the end (offset: "
+         << offset
+         << ", size: "
+         << sizeof(T)
+         << ", end: "
+         << size
+         << ")";
+      throw std::runtime_error(ss.str());
+   }
 
    return *reinterpret_cast<T const*>(mapping.data() + offset);
 }
