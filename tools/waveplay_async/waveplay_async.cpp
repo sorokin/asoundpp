@@ -225,13 +225,17 @@ private:
    boost::optional<alsa_player> player_;
 };
 
-int main(int , char *[])
+int main(int argc, char *argv[])
 {
    try
    {
-      //input_stream_sp stream = open_wave_file("/home/ivan/d/alsa/asoundpp/1.wav");
-      //input_stream_sp stream = open_flac_file("/home/ivan/d/alsa/1.flac");
-      input_stream_sp stream = open_sine_generator(input_stream::format(44100, 1, SND_PCM_FORMAT_S16), 440);
+      if(argc != 2)
+      {
+          fprintf(stderr, "usage: %s infile.wav\n", argv[0]);
+          return 1;
+      }
+
+      input_stream_sp stream = open_wave_file(argv[1]);
 
       std::cerr << "format:       " << snd_pcm_format_name(stream->get_format().fmt)
                 << " (" << snd_pcm_format_description(stream->get_format().fmt) << ")" <<std::endl;
