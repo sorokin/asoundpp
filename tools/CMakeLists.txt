@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 2.6)
 
 add_subdirectory(flac2wave)
 add_subdirectory(info)
+add_subdirectory(waveplay)
 
 #include_directories("${INPUT_SOURCE_DIR}" "${OUTPUT_SOURCE_DIR}")
 
