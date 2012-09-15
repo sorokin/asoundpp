@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "FLAC/stream_decoder.h"
 
 #include <sstream>
 #include <string>
@@ -11,7 +10,7 @@
 #include <boost/optional.hpp>
 
 #include "input_stream.h"
-#include "wav_writer.hpp"
+#include "wave_writer.hpp"
 
 int main(int argc, char *argv[])
 {

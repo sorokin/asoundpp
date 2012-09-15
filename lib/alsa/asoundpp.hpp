@@ -6,8 +6,6 @@
 #include <sstream>
 #include <vector>
 
-#include "frame.hpp"
-
 namespace asound
 {
    namespace pcm

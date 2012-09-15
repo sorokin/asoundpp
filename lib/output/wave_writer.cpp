@@ -1,4 +1,4 @@
-#include "wav_writer.hpp"
+#include "wave_writer.hpp"
 #include <boost/cstdint.hpp>
 #include <sstream>
 #include <stdexcept>
