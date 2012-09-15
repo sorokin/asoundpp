@@ -6,4 +6,4 @@ add_executable(info
    info.cpp
 )
 
-target_link_libraries(info asound)
+target_link_libraries(info asound alsa)

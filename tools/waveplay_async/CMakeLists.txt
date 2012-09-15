@@ -9,4 +9,4 @@ add_executable(waveplay_async
    waveplay_async.cpp
 )
 
-target_link_libraries(waveplay_async asound input ${Boost_LIBRARIES})
+target_link_libraries(waveplay_async asound input alsa ${Boost_LIBRARIES})

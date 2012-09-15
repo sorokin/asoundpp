@@ -7,4 +7,4 @@ add_executable(waveplay
    waveplay.cpp
 )
 
-target_link_libraries(waveplay asound input)
+target_link_libraries(waveplay asound input alsa)
