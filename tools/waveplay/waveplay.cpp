@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "input_stream.h"
-#include "asoundpp.hpp"
+#include "output_device.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -20,14 +20,7 @@ int main(int argc, char* argv[])
 
     asound::global_config_cleanup cfg_cleanup;
 
-    asound::pcm::device d("default", SND_PCM_STREAM_PLAYBACK, 0);
-
-    d.set_params(stream->get_format().fmt,
-                 SND_PCM_ACCESS_RW_INTERLEAVED,
-                 stream->get_format().channels,
-                 stream->get_format().sample_rate,
-                 true,
-                 500000);
+    output_device d("default", stream->get_format());
 
     std::vector<char> buf(8192 * stream->get_format().frame_size());
     size_t number_of_blocks = *stream->get_size() / 8192;
@@ -36,12 +29,12 @@ int main(int argc, char* argv[])
     for (size_t i = 0; i != number_of_blocks; ++i)
     {
        stream->read(&buf[0], 8192);
-       d.writei(&buf[0], 8192);
+       d.write(&buf[0], 8192);
     }
 
     if (last_block_size != 0)
     {
         stream->read(&buf[0], last_block_size);
-        d.writei(&buf[0], last_block_size);
+        d.write(&buf[0], last_block_size);
     }
 }
