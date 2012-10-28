@@ -5,18 +5,21 @@
 int main()
 {
     asound::global_config_cleanup cleanup;
-    input_device id("default", format(44100, 1, SND_PCM_FORMAT_S16));
-    output_device od("default", format(44100, 1, SND_PCM_FORMAT_S16));
 
-    std::vector<char> v(1000 * id.get_format().frame_size());
+    format fmt(44100, 1, SND_PCM_FORMAT_S16);
+    input_device in("default", fmt);
+    output_device out("default", fmt);
+
+    std::vector<char> v(1000 * in.get_format().frame_size());
     for (;;)
     {
-        size_t nn = id.get_available();
+        size_t nn = in.get_available();
         if (nn == 0)
             nn = 1;
         else if (nn > 1000)
             nn = 1000;
-        id.read(&v[0], nn);
-        od.write(&v[0], nn);
+        in.read(&v[0], nn);
+        out.write(&v[0], nn);
     }
 }
+

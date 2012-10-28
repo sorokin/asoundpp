@@ -9,21 +9,24 @@
 int main()
 {
     asound::global_config_cleanup cleanup;
-    input_device id("default", format(44100, 1, SND_PCM_FORMAT_S16));
-    output_device od("default", format(44100, 1, SND_PCM_FORMAT_S16));
 
-    speex_encoder se;
-    speex_decoder de;
+    format fmt(44100, 1, SND_PCM_FORMAT_S16);
+    input_device in("default", fmt);
+    output_device out("default", fmt);
 
-    std::vector<char> v(se.frame_size() * id.get_format().frame_size());
-    std::vector<char> vv(de.frame_size() * id.get_format().frame_size());
+    speex_encoder enc;
+    speex_decoder dec;
+
+    std::vector<char> v(enc.frame_size() * fmt.frame_size());
+    std::vector<char> vv(dec.frame_size() * fmt.frame_size());
+
     for (;;)
     {
-        id.read(&v[0], se.frame_size());
+        in.read(&v[0], enc.frame_size());
 
-        se.encode(&v[0]);
-        de.decode(se.get_encoded_data(), se.get_encoded_size(), &vv[0]);
+        enc.encode(&v[0]);
+        dec.decode(enc.get_encoded_data(), enc.get_encoded_size(), &vv[0]);
 
-        od.write(&vv[0], de.frame_size());
+        out.write(&vv[0], dec.frame_size());
     }
 }
