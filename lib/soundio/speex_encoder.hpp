@@ -14,17 +14,23 @@ struct speex_encoder : boost::noncopyable
                   int quality = 10);
     ~speex_encoder();
 
-    size_t frame_size();
+    // speex encode data by blocks of fixed size
+    // this function returns the size of one block in shorts
+    size_t block_size();
 
+    // data must contain at least block_size() * sizeof(short) bytes
+    // to avoid extra memory allocations encode() stores result inside the object
+    // after calling encode() you can get encoded data by calling get_encoded_data()/get_encoded_size()
+    // values returned by get_encoded_data()/get_encoded_size() are valid until next invokation of encode()
+    // it is an error to call get_encoded_data()/get_encoded_size() after constuction of speex_encoder before encode()
     void encode(void const* data);
-
     void const* get_encoded_data();
     size_t get_encoded_size();
 
 private:
     SpeexBits bits_;
     void* encoder_state_;
-    size_t frame_size_;
+    size_t block_size_;
     std::vector<char> buf_;
 };
 

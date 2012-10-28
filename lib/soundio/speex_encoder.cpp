@@ -32,7 +32,7 @@ speex_encoder::speex_encoder(speex_profile p, int quality)
 
     int fs;
     do_encoder_ctl(encoder_state_, SPEEX_GET_FRAME_SIZE, &fs);
-    frame_size_ = fs;
+    block_size_ = fs;
 
     do_encoder_ctl(encoder_state_, SPEEX_SET_QUALITY, &quality);
 }
@@ -43,9 +43,9 @@ speex_encoder::~speex_encoder()
     speex_bits_destroy(&bits_);
 }
 
-size_t speex_encoder::frame_size()
+size_t speex_encoder::block_size()
 {
-    return frame_size_;
+    return block_size_;
 }
 
 void speex_encoder::encode(void const* data)

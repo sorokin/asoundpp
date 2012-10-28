@@ -31,7 +31,7 @@ speex_decoder::speex_decoder(speex_profile p)
 
     int fs;
     do_decoder_ctl(decoder_state_, SPEEX_GET_FRAME_SIZE, &fs);
-    frame_size_ = fs;
+    block_size_ = fs;
 }
 
 speex_decoder::~speex_decoder()
@@ -40,9 +40,9 @@ speex_decoder::~speex_decoder()
     speex_bits_destroy(&bits_);
 }
 
-size_t speex_decoder::frame_size()
+size_t speex_decoder::block_size()
 {
-    return frame_size_;
+    return block_size_;
 }
 
 void speex_decoder::decode(void const* data, size_t size, void* output)

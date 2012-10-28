@@ -17,16 +17,16 @@ int main()
     speex_encoder enc;
     speex_decoder dec;
 
-    std::vector<char> v(enc.frame_size() * fmt.frame_size());
-    std::vector<char> vv(dec.frame_size() * fmt.frame_size());
+    std::vector<char> v(enc.block_size() * fmt.frame_size());
+    std::vector<char> vv(dec.block_size() * fmt.frame_size());
 
     for (;;)
     {
-        in.read(&v[0], enc.frame_size());
+        in.read(&v[0], enc.block_size());
 
         enc.encode(&v[0]);
         dec.decode(enc.get_encoded_data(), enc.get_encoded_size(), &vv[0]);
 
-        out.write(&vv[0], dec.frame_size());
+        out.write(&vv[0], dec.block_size());
     }
 }

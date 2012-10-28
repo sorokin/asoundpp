@@ -11,15 +11,17 @@ struct speex_decoder : boost::noncopyable
     speex_decoder(speex_profile p = wideband_speex_profile);
     ~speex_decoder();
 
-    size_t frame_size();
+    // speex encode data by blocks of fixed size
+    // this function returns the size of one block in shorts
+    size_t block_size();
 
+    // output must contain at least block_size() * sizeof(short) bytes
     void decode(void const* data, size_t size, void* output);
-
 
 private:
     SpeexBits bits_;
     void* decoder_state_;
-    size_t frame_size_;
+    size_t block_size_;
 };
 
 #endif
