@@ -54,10 +54,6 @@ enum speex_profile
 
 struct speex_encoder : boost::noncopyable
 {
-    enum profile
-    {
-    };
-
     speex_encoder(speex_profile p = wideband_speex_profile,
                   int quality = 10)               // integer [0..10]
     {
