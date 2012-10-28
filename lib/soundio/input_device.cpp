@@ -1,6 +1,6 @@
 #include "input_device.hpp"
 
-input_device::input_device(format const& fmt, std::string const& device_name)
+input_device::input_device(std::string const& device_name, format const& fmt)
     : fmt_(fmt)
     , d_(device_name.c_str(), SND_PCM_STREAM_CAPTURE, 0)
 {

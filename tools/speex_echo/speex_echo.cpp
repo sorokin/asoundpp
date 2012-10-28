@@ -148,7 +148,7 @@ private:
 int main()
 {
     asound::global_config_cleanup cleanup;
-    input_device id(format(44100, 1, SND_PCM_FORMAT_S16), "default");
+    input_device id("default", format(44100, 1, SND_PCM_FORMAT_S16));
     output_device od("default", format(44100, 1, SND_PCM_FORMAT_S16));
 
     speex_encoder se;

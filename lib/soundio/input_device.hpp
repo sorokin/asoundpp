@@ -7,7 +7,7 @@
 
 struct input_device : boost::noncopyable
 {
-    input_device(format const& fmt, std::string const& device_name);
+    input_device(std::string const& device_name, format const& fmt);
 
     format get_format();
     size_t get_available();

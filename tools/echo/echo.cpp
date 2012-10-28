@@ -5,7 +5,7 @@
 int main()
 {
     asound::global_config_cleanup cleanup;
-    input_device id(format(44100, 1, SND_PCM_FORMAT_S16), "default");
+    input_device id("default", format(44100, 1, SND_PCM_FORMAT_S16));
     output_device od("default", format(44100, 1, SND_PCM_FORMAT_S16));
 
     std::vector<char> v(1000 * id.get_format().frame_size());
