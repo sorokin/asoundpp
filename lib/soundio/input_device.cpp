@@ -17,11 +17,11 @@ size_t input_device::get_available()
     return d_.avail_update();
 }
 
-void input_device::read(void* buf, size_t size)
+void input_device::read(void* buf, size_t number_of_frames)
 {
     try
     {
-        d_.readi(buf, size);
+        d_.readi(buf, number_of_frames);
     }
     catch (asound::pcm::underrun const&)
     {

@@ -9,7 +9,10 @@ struct output_device : boost::noncopyable
 {
     output_device(std::string const& device_name, format fmt);
 
-    void write(void const* buf, size_t number_of_frames);
+    // block execution if buffer of operating system is full
+    // buf must contain at least fmt.frame_size() * size bytes
+    void write(void const* buf,
+               size_t number_of_frames);
 
 private:
     asound::pcm::device d;

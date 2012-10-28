@@ -7,12 +7,18 @@
 
 struct input_device : boost::noncopyable
 {
-    input_device(std::string const& device_name, format const& fmt);
+    input_device(std::string const& device_name, // e.g. "default"
+                 format const& fmt);
 
     format get_format();
     size_t get_available();
 
-    void read(void* buf, size_t size);
+    // block execution until buffer are filled completely
+    // call get_available() to get the number that can be read without blocking
+    // buf must contain at least get_format().frame_size() * size bytes
+    void read(void* buf,
+              size_t number_of_frames);
+
 
 private:
     format fmt_;
