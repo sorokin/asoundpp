@@ -11,4 +11,9 @@ add_library(soundio
    input_device.hpp
    output_device.hpp
    output_device.cpp
+   speex_decoder.hpp
+   speex_decoder.cpp
+   speex_encoder.hpp
+   speex_encoder.cpp
+   speex_profile.hpp
 )
