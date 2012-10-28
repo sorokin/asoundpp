@@ -62,7 +62,7 @@ namespace asound
       
       struct device
       {
-         device(char const* name, snd_pcm_stream_t stream, int mode = 0);
+         device(char const* device_name, snd_pcm_stream_t stream, int mode = 0);
          ~device();
 
          snd_pcm_t* get() const;

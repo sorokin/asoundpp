@@ -165,13 +165,13 @@ void asound::pcm::hw_params::set_buffer_size(device const& d, snd_pcm_uframes_t 
    }
 }
 
-asound::pcm::device::device(char const* name, snd_pcm_stream_t stream, int mode)
+asound::pcm::device::device(char const* device_name, snd_pcm_stream_t stream, int mode)
 {
-   int r = snd_pcm_open(&d, name, stream, mode);
+   int r = snd_pcm_open(&d, device_name, stream, mode);
    if (r != 0)
    {
       std::stringstream ss;
-      ss << "unable to open pcm device \"" << name << "\" (error: " << r << ")";
+      ss << "unable to open pcm device \"" << device_name << "\" (error: " << r << ")";
       throw std::runtime_error(ss.str());
    }
 }
