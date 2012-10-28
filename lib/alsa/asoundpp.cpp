@@ -260,6 +260,35 @@ void asound::pcm::device::writei(void const* data, snd_pcm_uframes_t size)
    }
 }
 
+snd_pcm_uframes_t asound::pcm::device::readi(void* data, snd_pcm_uframes_t size)
+{
+    snd_pcm_sframes_t r = snd_pcm_readi(d, data, size);
+    if (r == -EAGAIN)
+        return 0;
+
+    if (r < 0)
+    {
+        std::stringstream ss;
+        ss << "failed to read interleaved frame from pcm device (error: " << r << ")";
+        switch (r)
+        {
+        case -EBADFD:
+           ss << " pcm device is not in the right state";
+           break;
+        case -EPIPE:
+           ss << " an overrun occurred";
+           throw underrun(ss.str());
+        case -ESTRPIPE:
+           ss << " a suspend event occurred";
+           break;
+        }
+
+        throw std::runtime_error(ss.str());
+    }
+
+    return (snd_pcm_uframes_t)r;
+}
+
 std::vector<pollfd> asound::pcm::device::poll_descriptors()
 {
    std::vector<pollfd> r;

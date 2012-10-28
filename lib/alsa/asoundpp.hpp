@@ -72,13 +72,14 @@ namespace asound
          void prepare();
          void drain();
          void set_hw_params(hw_params const& p);
-         void set_params(snd_pcm_format_t format,
-                         snd_pcm_access_t access,
-                         unsigned         channels,
-                         unsigned         rate,
+         void set_params(snd_pcm_format_t format,        // e.g. SND_PCM_FORMAT_S16
+                         snd_pcm_access_t access,        // e.g. SND_PCM_ACCESS_RW_INTERLEAVED
+                         unsigned         channels,      // e.g. 2
+                         unsigned         rate,          // e.g. 44100
                          bool             soft_resample,
-                         unsigned         latency);
+                         unsigned         latency);      // (in us) e.g. 500000
          void writei(void const*, snd_pcm_uframes_t);
+         snd_pcm_uframes_t readi(void*, snd_pcm_uframes_t);
 
          std::vector<pollfd> poll_descriptors();
          unsigned short revents(pollfd*, size_t);
