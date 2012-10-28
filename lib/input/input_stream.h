@@ -37,6 +37,7 @@ typedef boost::shared_ptr<input_stream> input_stream_sp;
 void seek_backward(input_stream& stream, size_t frame_n);
 void seek_forward(input_stream& stream, size_t frame_n);
 
+input_stream_sp open_input_device(input_stream::format const& fmt, std::string const& device_name = "default");
 input_stream_sp open_wave_file(std::string const& filename);
 input_stream_sp open_flac_file(std::string const& filename);
 input_stream_sp open_sine_generator(input_stream::format const& fmt, double freq);

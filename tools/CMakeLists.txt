@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 
+add_subdirectory(echo)
 add_subdirectory(flac2wave)
 add_subdirectory(info)
 add_subdirectory(waveplay)
