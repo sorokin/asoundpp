@@ -1,6 +1,6 @@
 #include "output_device.hpp"
 
-output_device::output_device(std::string const& device_name, input_stream::format fmt)
+output_device::output_device(std::string const& device_name, format fmt)
     : d(device_name.c_str(), SND_PCM_STREAM_PLAYBACK, 0)
 {
     d.set_params(fmt.fmt,

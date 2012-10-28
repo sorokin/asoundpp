@@ -1,6 +1,6 @@
 #include "asoundpp.hpp"
+#include "input_device.hpp"
 #include "output_device.hpp"
-#include "input_stream.h"
 
 #include <speex/speex.h>
 #include <sstream>
@@ -148,17 +148,17 @@ private:
 int main()
 {
     asound::global_config_cleanup cleanup;
-    input_stream_sp is = open_input_device(input_stream::format(44100, 1, SND_PCM_FORMAT_S16), "default");
-    output_device od("default", input_stream::format(44100, 1, SND_PCM_FORMAT_S16));
+    input_device id(format(44100, 1, SND_PCM_FORMAT_S16), "default");
+    output_device od("default", format(44100, 1, SND_PCM_FORMAT_S16));
 
     speex_encoder se;
     speex_decoder de;
 
-    std::vector<char> v(se.frame_size() * is->get_format().frame_size());
-    std::vector<char> vv(de.frame_size() * is->get_format().frame_size());
+    std::vector<char> v(se.frame_size() * id.get_format().frame_size());
+    std::vector<char> vv(de.frame_size() * id.get_format().frame_size());
     for (;;)
     {
-        is->read(&v[0], se.frame_size());
+        id.read(&v[0], se.frame_size());
 
         se.encode(&v[0]);
         de.decode(se.get_encoded_data(), se.get_encoded_size(), &vv[0]);
