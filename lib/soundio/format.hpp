@@ -1,5 +1,5 @@
-#ifndef INPUT_STREAM_H
-#define INPUT_STREAM_H
+#ifndef SOUNDIO_FORMAT_H
+#define SOUNDIO_FORMAT_H
 
 #include <cstdlib>
 #include <alsa/asoundlib.h>
@@ -19,4 +19,4 @@ struct format
   snd_pcm_format_t fmt;
 };
 
-#endif // INPUT_STREAM_H
+#endif

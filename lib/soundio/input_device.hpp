@@ -1,5 +1,5 @@
-#ifndef INPUT_DEVICE_H
-#define INPUT_DEVICE_H
+#ifndef SOUNDIO_INPUT_DEVICE_H
+#define SOUNDIO_INPUT_DEVICE_H
 
 #include <boost/noncopyable.hpp>
 #include "asoundpp.hpp"
@@ -25,4 +25,4 @@ private:
     asound::pcm::device d_;
 };
 
-#endif // INPUT_DEVICE_H
+#endif

@@ -1,5 +1,5 @@
-#ifndef OUTPUT_DEVICE_H
-#define OUTPUT_DEVICE_H
+#ifndef SOUNDIO_OUTPUT_DEVICE_H
+#define SOUNDIO_OUTPUT_DEVICE_H
 
 #include "format.hpp"
 #include <boost/noncopyable.hpp>
@@ -18,4 +18,4 @@ private:
     asound::pcm::device d;
 };
 
-#endif // OUTPUT_DEVICE_H
+#endif

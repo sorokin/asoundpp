@@ -1,5 +1,5 @@
-#ifndef ASOUNDPP_ASOUNDPP_HPP
-#define ASOUNDPP_ASOUNDPP_HPP
+#ifndef SOUNDIO_ASOUNDPP_HPP
+#define SOUNDIO_ASOUNDPP_HPP
 
 #include <alsa/asoundlib.h>
 #include <stdexcept>
