@@ -14,8 +14,8 @@ struct input_device : boost::noncopyable
     size_t get_available();
 
     // block execution until buffer are filled completely
-    // call get_available() to get the number that can be read without blocking
-    // buf must contain at least get_format().frame_size() * size bytes
+    // use get_available() to get the number of frames that can be read without blocking
+    // buf must contain at least get_format().frame_size() * number_of_frames bytes
     void read(void* buf,
               size_t number_of_frames);
 
