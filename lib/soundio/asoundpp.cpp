@@ -178,7 +178,7 @@ asound::pcm::device::device(char const* device_name, snd_pcm_stream_t stream, in
 
 asound::pcm::device::~device()
 {
-   snd_pcm_drop(d);
+   snd_pcm_close(d);
 }
 
 snd_pcm_t* asound::pcm::device::get() const
