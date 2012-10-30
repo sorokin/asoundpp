@@ -14,7 +14,7 @@ struct speex_encoder : boost::noncopyable
                   int quality = 10);
     ~speex_encoder();
 
-    // speex encode data by blocks of fixed size
+    // speex encodes data by blocks of fixed size
     // this function returns the size of one block in shorts
     size_t block_size();
 

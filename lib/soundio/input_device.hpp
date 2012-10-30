@@ -13,7 +13,7 @@ struct input_device : boost::noncopyable
     format get_format();
     size_t get_available();
 
-    // block execution until buffer are filled completely
+    // blocks execution until buffer are filled completely
     // use get_available() to get the number of frames that can be read without blocking
     // buf must contain at least get_format().frame_size() * number_of_frames bytes
     void read(void* buf,
