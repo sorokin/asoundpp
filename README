@@ -1,0 +1,23 @@
+  asoundpp
+
+A simple C++ wrapper around ALSA and speex.
+
+Dependencies:
+
+* boost
+* speex
+* asound (aka alsa-lib)
+
+Compilation:
+
+$ git clone git://github.com/sorokin/asoundpp.git
+$ cd asoundpp
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+
+Running examples:
+
+$ tools/echo/echo
+$ tools/speex_echo/speex_echo
