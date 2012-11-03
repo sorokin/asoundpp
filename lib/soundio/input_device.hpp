@@ -8,9 +8,9 @@
 struct input_device : boost::noncopyable
 {
     input_device(std::string const& device_name, // e.g. "default"
-                 format const& fmt);
+                 frame_format const& fmt);
 
-    format get_format();
+    frame_format get_format();
     size_t get_available();
 
     // blocks execution until buffer are filled completely
@@ -21,7 +21,7 @@ struct input_device : boost::noncopyable
 
 
 private:
-    format fmt_;
+    frame_format fmt_;
     asound::pcm::device d_;
 };
 

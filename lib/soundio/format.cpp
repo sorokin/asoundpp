@@ -2,27 +2,21 @@
 
 namespace
 {
-   size_t sample_size(snd_pcm_format_t format)
+   size_t sample_size(sample_format format)
    {
       switch (format)
       {
-      case SND_PCM_FORMAT_U8:
-      case SND_PCM_FORMAT_S8:
+      case SOUNDIO_SAMPLE_FORMAT_U8:
+      case SOUNDIO_SAMPLE_FORMAT_S8:
          return 1;
-      case SND_PCM_FORMAT_U16_LE:
-      case SND_PCM_FORMAT_S16_LE:
-      case SND_PCM_FORMAT_U16_BE:
-      case SND_PCM_FORMAT_S16_BE:
+      case SOUNDIO_SAMPLE_FORMAT_U16:
+      case SOUNDIO_SAMPLE_FORMAT_S16:
          return 2;
-      case SND_PCM_FORMAT_U24_LE:
-      case SND_PCM_FORMAT_S24_LE:
-      case SND_PCM_FORMAT_U24_BE:
-      case SND_PCM_FORMAT_S24_BE:
+      case SOUNDIO_SAMPLE_FORMAT_U24:
+      case SOUNDIO_SAMPLE_FORMAT_S24:
          return 3;
-      case SND_PCM_FORMAT_U32_LE:
-      case SND_PCM_FORMAT_S32_LE:
-      case SND_PCM_FORMAT_U32_BE:
-      case SND_PCM_FORMAT_S32_BE:
+      case SOUNDIO_SAMPLE_FORMAT_U32:
+      case SOUNDIO_SAMPLE_FORMAT_S32:
          return 4;
       default:
          assert(false);
@@ -30,19 +24,19 @@ namespace
    }
 }
 
-format::format()
-   : sample_rate()
+frame_format::frame_format()
+   : rate()
    , channels()
-   , fmt(SND_PCM_FORMAT_UNKNOWN)
+   , sample_fmt(SOUNDIO_SAMPLE_FORMAT_UNKNOWN)
 {}
 
-format::format(unsigned sample_rate, unsigned channels, snd_pcm_format_t fmt)
-   : sample_rate(sample_rate)
+frame_format::frame_format(unsigned sample_rate, unsigned channels, sample_format sample_fmt)
+   : rate(sample_rate)
    , channels(channels)
-   , fmt(fmt)
+   , sample_fmt(sample_fmt)
 {}
 
-size_t format::frame_size() const
+size_t frame_format::frame_size() const
 {
-   return sample_size(fmt) * channels;
+   return sample_size(sample_fmt) * channels;
 }

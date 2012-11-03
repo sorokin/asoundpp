@@ -4,19 +4,36 @@
 #include <cstdlib>
 #include <alsa/asoundlib.h>
 
-struct format
+enum sample_format
 {
-  format();
-  format(unsigned sample_rate,  // (samples per second) e.g. 44100
-         unsigned channels,     // e.g. 2
-         snd_pcm_format_t fmt); // e.g. SND_PCM_FORMAT_S16
+    SOUNDIO_SAMPLE_FORMAT_UNKNOWN,
 
-  // sample_size * channels
-  size_t frame_size() const;
+    SOUNDIO_SAMPLE_FORMAT_U8,
+    SOUNDIO_SAMPLE_FORMAT_S8,
 
-  unsigned sample_rate;
-  unsigned channels;
-  snd_pcm_format_t fmt;
+    SOUNDIO_SAMPLE_FORMAT_U16,
+    SOUNDIO_SAMPLE_FORMAT_S16,
+
+    SOUNDIO_SAMPLE_FORMAT_U24,
+    SOUNDIO_SAMPLE_FORMAT_S24,
+
+    SOUNDIO_SAMPLE_FORMAT_U32,
+    SOUNDIO_SAMPLE_FORMAT_S32
+};
+
+struct frame_format
+{
+    frame_format();
+    frame_format(unsigned rate,             // e.g. 44100
+                 unsigned channels,         // e.g. 2
+                 sample_format sample_fmt); // e.g. SOUNDIO_SAMPLE_FORMAT_S16
+
+    // sample_size * channels
+    size_t frame_size() const;
+
+    unsigned rate;
+    unsigned channels;
+    sample_format sample_fmt;
 };
 
 #endif

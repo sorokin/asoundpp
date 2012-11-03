@@ -6,7 +6,7 @@ int main()
 {
     asound::global_config_cleanup cleanup;
 
-    format fmt(44100, 1, SND_PCM_FORMAT_S16);
+    frame_format fmt(44100, 1, SOUNDIO_SAMPLE_FORMAT_S16);
     input_device in("default", fmt);
     output_device out("default", fmt);
 

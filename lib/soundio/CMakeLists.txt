@@ -5,6 +5,9 @@ project(SOUNDIO)
 add_library(soundio
    asoundpp.cpp
    asoundpp.hpp
+   alsa_format_conversion.cpp
+   alsa_format_conversion.hpp
+   asoundpp.hpp
    format.hpp
    format.cpp
    input_device.cpp
