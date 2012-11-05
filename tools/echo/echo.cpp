@@ -7,8 +7,8 @@ int main()
     asound::global_config_cleanup cleanup;
 
     frame_format fmt(44100, 1, SOUNDIO_SAMPLE_FORMAT_S16);
-    input_device in("default", fmt);
-    output_device out("default", fmt);
+    input_device in(fmt);
+    output_device out(fmt);
 
     std::vector<char> v(1000 * in.get_format().frame_size());
     for (;;)

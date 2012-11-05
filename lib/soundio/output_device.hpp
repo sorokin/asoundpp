@@ -7,7 +7,8 @@
 
 struct output_device : boost::noncopyable
 {
-    output_device(std::string const& device_name, frame_format fmt);
+    output_device(frame_format fmt);
+
 
     // blocks execution if buffer of operating system is full
     // buf must contain at least fmt.frame_size() * number_of_frames bytes

@@ -1,9 +1,9 @@
 #include "input_device.hpp"
 #include "alsa_format_conversion.hpp"
 
-input_device::input_device(std::string const& device_name, frame_format const& fmt)
+input_device::input_device(frame_format const& fmt)
     : fmt_(fmt)
-    , d_(device_name.c_str(), SND_PCM_STREAM_CAPTURE, 0)
+    , d_("default", SND_PCM_STREAM_CAPTURE, 0)
 {
     d_.set_params(sample_format_to_alsa_format(fmt.sample_fmt), SND_PCM_ACCESS_RW_INTERLEAVED, fmt.channels, fmt.rate, true, 500000);
 }
