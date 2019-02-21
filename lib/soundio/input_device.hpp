@@ -1,13 +1,14 @@
 #ifndef SOUNDIO_INPUT_DEVICE_H
 #define SOUNDIO_INPUT_DEVICE_H
 
-#include <boost/noncopyable.hpp>
 #include "asoundpp.hpp"
 #include "format.hpp"
 
-struct input_device : boost::noncopyable
+struct input_device
 {
     input_device(frame_format const& fmt);
+    input_device(input_device const&) = delete;
+    input_device& operator=(input_device const&) = delete;
 
     frame_format get_format();
     size_t get_available();

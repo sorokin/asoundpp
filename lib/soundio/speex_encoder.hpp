@@ -2,16 +2,17 @@
 #define SOUNDIO_SPEEX_ENCODER_H
 
 #include "speex_profile.hpp"
-#include <boost/noncopyable.hpp>
 #include <speex/speex.h>
 #include <cstdlib>
 #include <vector>
 
-struct speex_encoder : boost::noncopyable
+struct speex_encoder
 {
     // quality is integer [0..10]
     speex_encoder(speex_profile p = wideband_speex_profile,
                   int quality = 10);
+    speex_encoder(speex_encoder const&) = delete;
+    speex_encoder& operator=(speex_encoder const&) = delete;
     ~speex_encoder();
 
     // speex encodes data by blocks of fixed size

@@ -2,12 +2,13 @@
 #define SOUNDIO_OUTPUT_DEVICE_H
 
 #include "format.hpp"
-#include <boost/noncopyable.hpp>
 #include "asoundpp.hpp"
 
-struct output_device : boost::noncopyable
+struct output_device
 {
     output_device(frame_format fmt);
+    output_device(output_device const&) = delete;
+    output_device& operator=(output_device const&) = delete;
 
 
     // blocks execution if buffer of operating system is full
